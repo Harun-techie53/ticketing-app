@@ -7,9 +7,11 @@ import { errorHandler } from "./middlewares/error-handler";
 import { NotFoundError } from "./errors/not-found-error";
 import { userRouter } from "./routes/users";
 import mongoose from "mongoose";
+import cookieParser from "cookie-parser";
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.use(currentuserRouter);
 app.use(signinRouter);

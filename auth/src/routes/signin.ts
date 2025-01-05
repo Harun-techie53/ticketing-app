@@ -1,9 +1,8 @@
-import express, { NextFunction, Response } from "express";
-import { CustomRequest } from "../utils/types";
+import express, { NextFunction, Request, Response } from "express";
 import { User } from "../models/user";
 import { BadRequestError } from "../errors/bad-request-error";
 import bcrypt from "bcryptjs";
-import { getJwtToken } from "../utils/generateJwtToken";
+import { getJwtToken } from "../utils/jwtToken";
 import { validateRequest } from "../middlewares/validate-request";
 import { body } from "express-validator";
 
@@ -19,7 +18,7 @@ router.post(
       .withMessage("Password must be between 4 to 20 characters"),
   ],
   validateRequest,
-  async (req: CustomRequest, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });

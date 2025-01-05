@@ -1,9 +1,13 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 
 const router = express.Router();
 
-router.get("/api/users/signout", (req, res) => {
-  res.send("Signout route handler");
-});
+router.post(
+  "/api/users/signout",
+  (req: Request, res: Response, next: NextFunction) => {
+    res.clearCookie("jwt");
+    res.send({});
+  }
+);
 
 export { router as signoutRouter };

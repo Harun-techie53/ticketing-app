@@ -3,7 +3,7 @@ import { body } from "express-validator";
 import { Request, Response } from "express";
 import { User } from "../models/user";
 import { BadRequestError } from "../errors/bad-request-error";
-import { getJwtToken } from "../utils/generateJwtToken";
+import { getJwtToken } from "../utils/jwtToken";
 import { validateRequest } from "../middlewares/validate-request";
 
 const router = express.Router();

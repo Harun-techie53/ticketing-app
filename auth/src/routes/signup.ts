@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { RequestValidationError } from "../errors/request-validation-error";
 import { User } from "../models/user";
 import { BadRequestError } from "../errors/bad-request-error";
+import { getJwtToken } from "../utils/generateJwtToken";
 
 const router = express.Router();
 
@@ -24,7 +25,11 @@ router.post(
       .isLength({ min: 4, max: 20 })
       .withMessage("Password must be between 4 to 20 characters"),
   ],
-  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     const errors = validationResult(req);
 
     const { email, password, firstName, lastName } = req.body;
@@ -42,7 +47,11 @@ router.post(
     const newUser = User.build({ firstName, lastName, email, password });
     await newUser.save();
 
-    res.status(201).send({ message: "User created", data: newUser });
+    const userJwt = getJwtToken(newUser.id);
+
+    res.cookie("jwt", userJwt);
+
+    res.status(201).send({ token: userJwt, data: newUser });
   }
 );
 

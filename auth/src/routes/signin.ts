@@ -1,11 +1,11 @@
 import express, { NextFunction, Response } from "express";
 import { CustomRequest } from "../utils/types";
-import { validationResult, body } from "express-validator";
 import { User } from "../models/user";
 import { BadRequestError } from "../errors/bad-request-error";
 import bcrypt from "bcryptjs";
-import { RequestValidationError } from "../errors/request-validation-error";
 import { getJwtToken } from "../utils/generateJwtToken";
+import { validateRequest } from "../middlewares/validate-request";
+import { body } from "express-validator";
 
 const router = express.Router();
 
@@ -18,13 +18,8 @@ router.post(
       .isLength({ min: 4, max: 20 })
       .withMessage("Password must be between 4 to 20 characters"),
   ],
+  validateRequest,
   async (req: CustomRequest, res: Response, next: NextFunction) => {
-    const errors = validationResult(req);
-
-    if (!errors.isEmpty()) {
-      return next(new RequestValidationError(errors.array()));
-    }
-
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });

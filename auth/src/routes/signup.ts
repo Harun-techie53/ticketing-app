@@ -5,6 +5,7 @@ import { User } from "../models/user";
 import { BadRequestError } from "../errors/bad-request-error";
 import { getJwtToken } from "../utils/jwtToken";
 import { validateRequest } from "../middlewares/validate-request";
+import { UserRegisterDto } from "../types/requestDto";
 
 const router = express.Router();
 
@@ -27,7 +28,8 @@ router.post(
   ],
   validateRequest,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    const { email, password, firstName, lastName } = req.body;
+    const { email, password, firstName, lastName } =
+      req.body as UserRegisterDto;
 
     const existUser = await User.findOne({ email });
 

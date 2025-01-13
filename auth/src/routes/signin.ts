@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { getJwtToken } from "../utils/jwtToken";
 import { validateRequest } from "../middlewares/validate-request";
 import { body } from "express-validator";
+import { UserLoginDto } from "../types/requestDto";
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ router.post(
   ],
   validateRequest,
   async (req: Request, res: Response, next: NextFunction) => {
-    const { email, password } = req.body;
+    const { email, password } = req.body as UserLoginDto;
 
     const user = await User.findOne({ email });
 

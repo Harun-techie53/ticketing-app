@@ -10,7 +10,7 @@ spec:
   rules:
     - host: ticketing.dev
       http:
-        paths:
+        paths: 
           - path: /api/users
             pathType: Prefix
             backend:

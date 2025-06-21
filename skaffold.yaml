@@ -1,4 +1,4 @@
-apiVersion: skaffold/v2alpha3
+apiVersion: skaffold/v2beta29
 kind: Config
 deploy:
   kubectl:
@@ -39,4 +39,12 @@ build:
       sync:
         manual:
           - src: "src/**/*.ts"
+            dest: .
+    - image: harun1809030/ticketing-payments
+      context: payments
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.tsx"
             dest: .

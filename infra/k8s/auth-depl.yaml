@@ -14,15 +14,17 @@ spec:
     spec:
       containers:
         - name: auth
-          image: harun1809030/ticketing-auth
+          image: harun1809030/ticketing-auth:latest
           env:
             - name: MONGO_URI
-              value: "mongodb://auth-mongo-srv:27017/auth"
+              value: "mongodb+srv://harun:23113296460012834@cluster0.kcvr2uw.mongodb.net/tickets?retryWrites=true&w=majority&appName=Cluster0"
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
                   name: jwt-secret
                   key: JWT_KEY
+          ports:
+            - containerPort: 3000
 ---
 apiVersion: v1
 kind: Service

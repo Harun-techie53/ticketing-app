@@ -4,18 +4,14 @@ metadata:
   name: ticketing-ingress-service
   namespace: default
   annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    # cert-manager.io/cluster-issuer: "letsencrypt-staging"
-    # nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.allow-http: "true"
+  labels:
+    id: custom-ingress-resource
 spec:
-  ingressClassName: nginx
-  # tls:
-  #   - hosts:
-  #       - ticketing.dev
-  #     secretName: ticketing-dev-tls
+  ingressClassName: gce
   rules:
-    - host: ticketing.dev
-      http:
+    - http:
         paths:
           - path: /api/users
             pathType: Prefix
@@ -36,12 +32,5 @@ spec:
             backend:
               service:
                 name: orders-srv
-                port:
-                  number: 3000
-          - path: /api/payments
-            pathType: Prefix
-            backend:
-              service:
-                name: payments-srv
                 port:
                   number: 3000

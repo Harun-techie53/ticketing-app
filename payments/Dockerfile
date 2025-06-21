@@ -1,13 +1,25 @@
+# Stage 1: Install dependencies
+FROM node:alpine AS deps
+
+WORKDIR /app
+
+# Install only dependencies first for better caching
+COPY package.json package-lock.json* ./
+
+RUN npm install
+
+# Stage 2: Copy files and run app
 FROM node:alpine
 
 WORKDIR /app
 
-COPY package.json ./
+ENV PORT=3000
 
-RUN npm install
+# Copy only the necessary files from the previous stage
+COPY --from=deps /app /app
 
-COPY ./ ./
+COPY . .
 
-EXPOSE 3000
+EXPOSE $PORT
 
 CMD ["npm", "start"]

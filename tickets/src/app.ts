@@ -13,6 +13,10 @@ app.use(updateRouter);
 app.use(createRouter);
 app.use(getRouter);
 
+app.get("/", (req, res) => {
+  res.send("OK");
+});
+
 app.all("*", () => {
   throw new NotFoundError();
 });

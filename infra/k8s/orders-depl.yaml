@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: orders
-          image: harun1809030/ticketing-orders
+          image: harun1809030/ticketing-orders:latest
           env:
             - name: JWT_KEY
               valueFrom:
@@ -22,7 +22,7 @@ spec:
                   name: jwt-secret
                   key: JWT_KEY
             - name: MONGO_URI
-              value: "mongodb://orders-mongo-srv:27017/orders"
+              value: "mongodb+srv://harun:23113296460012834@cluster0.kcvr2uw.mongodb.net/orders?retryWrites=true&w=majority&appName=Cluster0"
             - name: NATS_CLUSTER_ID
               value: "ticketing"
             - name: NATS_CLIENT_URL

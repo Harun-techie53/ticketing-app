@@ -19,8 +19,13 @@ spec:
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
-                  name: jwt-secret
+                  name: cluster-secrets
                   key: JWT_KEY
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-secrets
+                  key: STRIPE_SECRET_KEY
             - name: MONGO_URI
               value: "mongodb+srv://harun:23113296460012834@cluster0.kcvr2uw.mongodb.net/payments?retryWrites=true&w=majority&appName=Cluster0"
             - name: NATS_CLUSTER_ID

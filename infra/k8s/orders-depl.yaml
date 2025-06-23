@@ -19,7 +19,7 @@ spec:
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
-                  name: jwt-secret
+                  name: cluster-secrets
                   key: JWT_KEY
             - name: MONGO_URI
               value: "mongodb+srv://harun:23113296460012834@cluster0.kcvr2uw.mongodb.net/orders?retryWrites=true&w=majority&appName=Cluster0"

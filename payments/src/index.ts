@@ -5,6 +5,10 @@ import { OrderCreatedListener } from "./events/order-created-listener";
 import { OrderCancelledListener } from "./events/order-cancelled-listener";
 
 const start = async () => {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    throw new Error("STRIPE SECRET KEY not defined yet");
+  }
+
   if (!process.env.JWT_KEY) {
     throw new Error("JWT not defined yet");
   }

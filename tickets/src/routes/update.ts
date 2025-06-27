@@ -19,8 +19,6 @@ router.put(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const ticket = await Ticket.findById(req.params.id);
 
-    console.log("ticket", ticket);
-
     if (!ticket) {
       return next(new BadRequestError("Ticket not found", 404));
     }
@@ -31,7 +29,7 @@ router.put(
       );
     }
 
-    if (!!ticket.orderId) {
+    if (!!ticket.order) {
       return next(
         new BadRequestError("Update Not Permissible: Ticket is Reserved", 403)
       );

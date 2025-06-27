@@ -25,7 +25,7 @@ router.patch(
     order.status = OrderStatus.Cancelled;
 
     await order.save();
-    console.log("typeof order id", typeof order.id);
+    
     res.status(200).send({ data: order });
 
     new OrderCancelledPublisher(natsClient.client).publish({

@@ -5,6 +5,7 @@ export interface TicketDto {
   description: string;
   status: TicketStatusType;
   price: number;
+  maxResalePrice?: number;
 }
 
 export interface TicketUpdateDto {
@@ -12,4 +13,5 @@ export interface TicketUpdateDto {
   description?: string;
   status?: TicketStatusType;
   price?: number;
+  maxResalePrice?: number;
 }

@@ -7,6 +7,7 @@ export interface TicketAttrs {
   status: TicketStatusType;
   price: number;
   user: string;
+  maxResalePrice: number;
 }
 
 export enum TicketStatusType {
@@ -22,7 +23,11 @@ export interface TicketDoc extends mongoose.Document {
   price: number;
   user: string;
   version: number;
-  orderId: string;
+  order: {
+    id: string;
+    user: string;
+  };
+  maxResalePrice: number;
 }
 
 interface TicketModel extends mongoose.Model<TicketDoc> {
@@ -52,9 +57,21 @@ const ticketSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    orderId: {
-      type: String,
+    order: {
+      id: {
+        type: String,
+      },
+      user: {
+        type: String,
+      },
     },
+    maxResalePrice: {
+      type: Number,
+      required: true,
+    },
+    resaledPrice: {
+      type: Number
+    }
   },
   {
     toJSON: {

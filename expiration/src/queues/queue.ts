@@ -1,9 +1,24 @@
 import { Queue } from "bullmq";
-import { ordersExpiration, OrdersExpirationQueuePayload } from "./queue-types";
+import {
+  auctionsExpiration,
+  AuctionsExpirationQueuePayload,
+  ordersExpiration,
+  OrdersExpirationQueuePayload,
+} from "./queue-types";
 import { redisConnection } from "./redis-config";
 
-const queue = new Queue<OrdersExpirationQueuePayload>(ordersExpiration, {
-  connection: redisConnection,
-});
+const ordersExpirationQueue = new Queue<OrdersExpirationQueuePayload>(
+  ordersExpiration,
+  {
+    connection: redisConnection,
+  }
+);
 
-export { queue };
+const auctionsExpirationQueue = new Queue<AuctionsExpirationQueuePayload>(
+  auctionsExpiration,
+  {
+    connection: redisConnection,
+  }
+);
+
+export { ordersExpirationQueue, auctionsExpirationQueue };

@@ -18,7 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@hrrtickets/common": "^1.0.17",
+    "@hrrtickets/common": "^1.0.33",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "express": "^4.21.2",

@@ -9,7 +9,7 @@ export class OrderCancelledListener extends Listener<OrderCancelledEvent> {
   queueGroup = queueGroupName;
 
   async onMessage(
-    data: { id: string; ticket: { id: string } },
+    data: OrderCancelledEvent["data"],
     msg: Message
   ): Promise<void> {
     const ticket = await Ticket.findById(data.ticket.id);
@@ -19,7 +19,7 @@ export class OrderCancelledListener extends Listener<OrderCancelledEvent> {
     }
 
     ticket.set({
-      orderId: null,
+      order: null,
     });
 
     await ticket.save();

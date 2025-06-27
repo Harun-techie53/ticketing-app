@@ -6,12 +6,12 @@ import {
 } from "@hrrtickets/common";
 import express, { NextFunction, Request, Response } from "express";
 import { Order } from "../models/order";
-import { Ticket } from "../models/ticket";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
 router.get(
-  "/api/orders",
+  "/api/orders/me",
   verifyToken,
   async (req: Request, res: Response, next: NextFunction) => {
     const orders = await Order.find({ user: req.currentUser?.id }).populate(
@@ -39,18 +39,21 @@ router.get(
   "/api/orders/:id",
   verifyToken,
   async (req: Request, res: Response, next: NextFunction) => {
-    const order = await Order.findById(req.params.id).populate("ticket");
+    const {id: orderId} = req.params;
 
+    if (!mongoose.isValidObjectId(orderId)) {
+      return next(new BadRequestError("Id is not valid", 400));
+    }
+
+    const order = await Order.findById(orderId).populate("ticket");
+
+    
     if (!order) {
       return next(new BadRequestError("Order not found", 404));
     }
 
-    if (req.currentUser?.role !== UserRoles.Admin) {
-      if (order.user !== req.currentUser!.id) {
-        return next(
-          new BadRequestError("Order not belong to the current user", 401)
-        );
-      }
+    if(req.currentUser?.id !== order.user && req.currentUser?.role !== UserRoles.Admin) {
+      return next(new BadRequestError("Not authorized to access order", 401));
     }
 
     res.status(200).send({ data: order });
@@ -58,12 +61,19 @@ router.get(
 );
 
 router.get(
-  "/api/orders/tickets",
+  "/api/orders/tickets/:id",
   verifyToken,
+  restrictRoute([UserRoles.Admin]),
   async (req: Request, res: Response, next: NextFunction) => {
-    const tickets = await Ticket.find();
+    const { id: ticketId } = req.params;
 
-    res.status(200).send({ data: tickets });
+    if (!mongoose.isValidObjectId(ticketId)) {
+      return next(new BadRequestError("Id is not valid", 400));
+    }
+
+    const orders = await Order.find({ ticket: ticketId });
+
+    res.status(200).send({ data: orders });
   }
 );
 

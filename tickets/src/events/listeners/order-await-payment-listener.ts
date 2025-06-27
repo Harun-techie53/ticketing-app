@@ -1,24 +1,18 @@
-import {
-  BadRequestError,
-  Listener,
-  OrderCreatedEvent,
-  OrderStatus,
-  Subjects,
-} from "@hrrtickets/common";
+import { Listener, OrderAwaitPaymentEvent, Subjects } from "@hrrtickets/common";
 import { queueGroupName } from "./queue-group-name";
 import { Message } from "node-nats-streaming";
 import { Ticket } from "../../models/tickets";
 import { TicketUpdatedPublisher } from "../publishers/ticket-updated-publisher";
 
-export class OrderCreatedListener extends Listener<OrderCreatedEvent> {
-  subject = Subjects.OrderCreated;
-  queueGroup = queueGroupName;
+export class OrderAwaitPaymentListener extends Listener<OrderAwaitPaymentEvent> {
+  subject: Subjects = Subjects.OrderAwaitPayment;
+  queueGroup: string = queueGroupName;
 
   async onMessage(
-    data: OrderCreatedEvent["data"],
+    data: OrderAwaitPaymentEvent["data"],
     msg: Message
   ): Promise<void> {
-    const ticket = await Ticket.findById(data.ticket.id);
+    const ticket = await Ticket.findById(data.ticketId);
 
     if (!ticket) {
       throw new Error("Ticket not found");
@@ -27,13 +21,13 @@ export class OrderCreatedListener extends Listener<OrderCreatedEvent> {
     ticket.set({
       order: {
         id: data.id,
-        user: data.user,
+        user: data.userId,
       },
     });
 
     await ticket.save();
 
-    await new TicketUpdatedPublisher(this.client).publish({
+    new TicketUpdatedPublisher(this.client).publish({
       id: ticket.id,
       title: ticket.title,
       price: ticket.price,

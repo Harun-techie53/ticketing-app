@@ -9,6 +9,9 @@ import { body } from "express-validator";
 import { Order } from "../models/order";
 import mongoose from "mongoose";
 import { stripe } from "../stripe";
+import { PaymentCreatedPublisher } from "../events/publishers/payment-created-publisher";
+import { natsClient } from "../nats-client";
+import { Payment } from "../models/payment";
 
 const router = express.Router();
 
@@ -42,6 +45,21 @@ router.post(
       currency: "usd",
       amount: order.price * 100,
       source: req.body.token,
+    });
+
+    const payment = Payment.build({
+      user: order.user,
+      orderId: order.id,
+      price: order.price,
+    });
+
+    await payment.save();
+
+    await new PaymentCreatedPublisher(natsClient.client).publish({
+      order: {
+        id: order.id,
+        status: OrderStatus.Complete,
+      },
     });
 
     res.status(201).json({

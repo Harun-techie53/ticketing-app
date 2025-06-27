@@ -1,8 +1,10 @@
 import mongoose from "mongoose";
 import { natsClient } from "./nats-client";
 import { app } from "./app";
-import { OrderCreatedListener } from "./events/order-created-listener";
-import { OrderCancelledListener } from "./events/order-cancelled-listener";
+import { OrderCompletedListener } from "./events/listeners/order-completed-listener";
+import { OrderCreatedListener } from "./events/listeners/order-created-listener";
+import { OrderCancelledListener } from "./events/listeners/order-cancelled-listener";
+import { OrderAwaitPaymentListener } from "./events/listeners/order-await-payment-listener";
 
 const start = async () => {
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -44,6 +46,8 @@ const start = async () => {
 
     new OrderCreatedListener(natsClient.client).listen();
     new OrderCancelledListener(natsClient.client).listen();
+    new OrderCompletedListener(natsClient.client).listen();
+    new OrderAwaitPaymentListener(natsClient.client).listen();
 
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to database");

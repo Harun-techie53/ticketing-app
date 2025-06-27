@@ -1,4 +1,4 @@
-import express from "express";
+import express, {Request, Response} from "express";
 import { currentuserRouter } from "./routes/current-user";
 import { signinRouter } from "./routes/signin";
 import { signoutRouter } from "./routes/signout";
@@ -24,6 +24,10 @@ app.use(signinRouter);
 app.use(signoutRouter);
 app.use(signupRouter);
 app.use(userRouter);
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("OK");
+});
 
 app.all("*", () => {
   throw new NotFoundError();

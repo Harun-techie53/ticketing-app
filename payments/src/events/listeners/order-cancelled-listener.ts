@@ -6,7 +6,7 @@ import {
   Subjects,
 } from "@hrrtickets/common";
 import { Message } from "node-nats-streaming";
-import { Order } from "../models/order";
+import { Order } from "../../models/order";
 
 export class OrderCancelledListener extends Listener<OrderCancelledEvent> {
   subject: Subjects.OrderCancelled = Subjects.OrderCancelled;

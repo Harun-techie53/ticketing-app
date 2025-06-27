@@ -6,7 +6,7 @@ import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 interface OrderAttrs {
   user: string;
   status: OrderStatus;
-  expiresAt: Date;
+  expiresAt?: Date;
   ticket: TicketDoc;
 }
 
@@ -20,6 +20,8 @@ interface OrderDoc extends mongoose.Document {
   expiresAt: Date;
   ticket: TicketDoc;
   version: number;
+  resaled: boolean;
+  resaledAt?: Date;
 }
 
 const orderSchema = new mongoose.Schema(
@@ -40,6 +42,17 @@ const orderSchema = new mongoose.Schema(
     ticket: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Ticket",
+    },
+    resaled: {
+      type: Boolean,
+      default: false,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
+    resaledAt: {
+      type: Date,
     },
   },
   {

@@ -31,6 +31,11 @@ router.post(
   validateRequest,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     const { title, description, status, price } = req.body as TicketDto;
+    let { maxResalePrice } = req.body as TicketDto;
+
+    if (!maxResalePrice) {
+      maxResalePrice = price + 10;
+    }
 
     const newTicket = Ticket.build({
       title,
@@ -38,6 +43,7 @@ router.post(
       status,
       price,
       user: req.currentUser?.id as string,
+      maxResalePrice,
     });
 
     await newTicket.save();

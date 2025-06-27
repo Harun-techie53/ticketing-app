@@ -3,6 +3,8 @@ import { app } from "./app";
 import { natsClient } from "./nats-client";
 import { OrderCreatedListener } from "./events/listeners/order-created-listener";
 import { OrderCancelledListener } from "./events/listeners/order-cancelled-listener";
+import { AuctionExpiredListener } from "./events/listeners/auction-expired-listener";
+import { OrderAwaitPaymentListener } from "./events/listeners/order-await-payment-listener";
 
 const start = async () => {
   if (!process.env.JWT_KEY) {
@@ -40,6 +42,9 @@ const start = async () => {
 
     new OrderCreatedListener(natsClient.client).listen();
     new OrderCancelledListener(natsClient.client).listen();
+    new AuctionExpiredListener(natsClient.client).listen();
+    new OrderAwaitPaymentListener(natsClient.client).listen();
+
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to database");
   } catch (error) {

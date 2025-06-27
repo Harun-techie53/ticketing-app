@@ -1,6 +1,10 @@
+import { AuctionCreatedListener } from "./events/listeners/auction-created-listener";
 import { OrderCreatedListener } from "./events/listeners/order-created-listener";
 import { natsClient } from "./nats-client";
-import { worker } from "./queues/worker";
+import {
+  auctionsExpirationWorker,
+  ordersExpirationWorker,
+} from "./queues/worker";
 
 const start = async () => {
   if (!process.env.NATS_CLUSTER_ID) {
@@ -25,19 +29,32 @@ const start = async () => {
       process.env.NATS_CLIENT_ID,
       process.env.NATS_CLIENT_URL
     );
+    console.log('Connected to NATS');
     natsClient.client.on("close", () => {
       console.log("NATS connection closed!");
       process.exit();
     });
 
     new OrderCreatedListener(natsClient.client).listen();
-    worker.on("completed", (job) => {
-      console.log(`Job completed for order ID: ${job.data.orderId}`);
+    new AuctionCreatedListener(natsClient.client).listen();
+
+    ordersExpirationWorker.on("completed", (job) => {
+      console.log(`Order Job completed for order ID: ${job.data.orderId}`);
     });
 
-    worker.on("failed", (job, err) => {
+    ordersExpirationWorker.on("failed", (job, err) => {
       console.log(
-        `Job failed for order ID: ${job?.data.orderId}, error: ${err}`
+        `Order Job failed for order ID: ${job?.data.orderId}, error: ${err}`
+      );
+    });
+
+    auctionsExpirationWorker.on("completed", (job) => {
+      console.log(`Order Job completed for order ID: ${job.data.auctionId}`);
+    });
+
+    auctionsExpirationWorker.on("failed", (job, err) => {
+      console.log(
+        `Order Job failed for order ID: ${job?.data.auctionId}, error: ${err}`
       );
     });
     process.on("SIGINT", () => natsClient.client.close());

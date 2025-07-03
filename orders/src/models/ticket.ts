@@ -7,12 +7,15 @@ interface TicketAttrs {
   id: string;
   title: string;
   price: number;
+  maxResalePrice: number;
 }
 
 export interface TicketDoc extends mongoose.Document {
   title: string;
   price: number;
   version: number;
+  maxResalePrice: number;
+  resaledPrice?: number;
   isReserved(): Promise<boolean>;
 }
 
@@ -35,6 +38,13 @@ const ticketSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    maxResalePrice: {
+      type: Number,
+    },
+    resaledPrice: {
+      type: Number,
+      default: null,
+    },
   },
   {
     toJSON: {
@@ -56,6 +66,7 @@ ticketSchema.statics.build = (attrs: TicketAttrs) => {
     _id: attrs.id,
     title: attrs.title,
     price: attrs.price,
+    maxResalePrice: attrs.maxResalePrice,
   });
 };
 

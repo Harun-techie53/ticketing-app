@@ -1,7 +1,12 @@
-import { Listener, OrderCancelledEvent, Subjects } from "@hrrtickets/common";
+import {
+  Listener,
+  OrderCancelledEvent,
+  Subjects,
+  TicketStatus,
+} from "@hrrtickets/common";
 import { queueGroupName } from "./queue-group-name";
 import { Message } from "node-nats-streaming";
-import { Ticket, TicketStatusType } from "../../models/tickets";
+import { Ticket } from "../../models/tickets";
 import { TicketUpdatedPublisher } from "../publishers/ticket-updated-publisher";
 
 export class OrderCancelledListener extends Listener<OrderCancelledEvent> {
@@ -20,6 +25,7 @@ export class OrderCancelledListener extends Listener<OrderCancelledEvent> {
 
     ticket.set({
       order: null,
+      status: TicketStatus.InStock,
     });
 
     await ticket.save();
@@ -29,6 +35,7 @@ export class OrderCancelledListener extends Listener<OrderCancelledEvent> {
       title: ticket.title,
       price: ticket.price,
       version: ticket.version,
+      resaledPrice: ticket.resaledPrice!,
     });
 
     msg.ack();

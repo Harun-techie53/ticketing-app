@@ -5,6 +5,7 @@ import { OrderCreatedListener } from "./events/listeners/order-created-listener"
 import { OrderCancelledListener } from "./events/listeners/order-cancelled-listener";
 import { AuctionExpiredListener } from "./events/listeners/auction-expired-listener";
 import { OrderAwaitPaymentListener } from "./events/listeners/order-await-payment-listener";
+import { OrderCompletedListener } from "./events/listeners/order-completed-listener";
 
 const start = async () => {
   if (!process.env.JWT_KEY) {
@@ -44,6 +45,7 @@ const start = async () => {
     new OrderCancelledListener(natsClient.client).listen();
     new AuctionExpiredListener(natsClient.client).listen();
     new OrderAwaitPaymentListener(natsClient.client).listen();
+    new OrderCompletedListener(natsClient.client).listen();
 
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to database");

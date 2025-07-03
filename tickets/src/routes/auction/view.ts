@@ -1,7 +1,5 @@
 import {
   BadRequestError,
-  restrictRoute,
-  UserRoles,
   verifyToken,
 } from "@hrrtickets/common";
 import express, { NextFunction, Request, Response } from "express";

@@ -26,7 +26,7 @@ router.post(
     body("password")
       .trim()
       .isLength({ min: 4, max: 20 })
-      .withMessage("Password must be between 4 to 20 characters")
+      .withMessage("Password must be between 4 to 20 characters"),
   ],
   validateRequest,
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -44,7 +44,13 @@ router.post(
 
     const userJwt = getJwtToken(newUser.id, newUser.role);
 
-    res.cookie("jwt", userJwt);
+    res.cookie("jwt", userJwt, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      path: "/",
+    });
 
     res.status(201).send({ token: userJwt, data: newUser });
   }

@@ -4,13 +4,20 @@ metadata:
   name: ticketing-ingress-service
   namespace: default
   annotations:
-    ingress.kubernetes.io/rewrite-target: /
     kubernetes.io/ingress.class: "nginx"
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "*"
-    nginx.ingress.kubernetes.io/cors-allow-methods: "GET POST PUT PATCH OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "http://localhost:3000"
+    nginx.ingress.kubernetes.io/cors-allow-methods: "GET, PUT, POST, DELETE, PATCH, OPTIONS"
+    nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,X-PINGOTHER,Authorization"
+    nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
+    nginx.ingress.kubernetes.io/cors-max-age: "86400"
+    nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Length,Content-Range,x-auth-token"
 spec:
   ingressClassName: nginx
+  tls:
+    - hosts:
+        - ticketing.dev
+      secretName: ticketing-tls
   rules:
     - host: ticketing.dev
       http:

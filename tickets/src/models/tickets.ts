@@ -1,25 +1,20 @@
+import { TicketStatus } from "@hrrtickets/common";
 import mongoose from "mongoose";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 export interface TicketAttrs {
   title: string;
   description: string;
-  status: TicketStatusType;
+  status: TicketStatus;
   price: number;
   user: string;
   maxResalePrice: number;
 }
 
-export enum TicketStatusType {
-  InStock = "instock",
-  Sold = "sold",
-  Closed = "closed",
-}
-
 export interface TicketDoc extends mongoose.Document {
   title: string;
   description: string;
-  status: TicketStatusType;
+  status: TicketStatus;
   price: number;
   user: string;
   version: number;
@@ -28,6 +23,7 @@ export interface TicketDoc extends mongoose.Document {
     user: string;
   };
   maxResalePrice: number;
+  resaledPrice: number | null;
 }
 
 interface TicketModel extends mongoose.Model<TicketDoc> {
@@ -50,8 +46,8 @@ const ticketSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: Object.values(TicketStatusType),
-      default: TicketStatusType.InStock,
+      enum: Object.values(TicketStatus),
+      default: TicketStatus.InStock,
     },
     price: {
       type: Number,
@@ -70,8 +66,8 @@ const ticketSchema = new mongoose.Schema(
       required: true,
     },
     resaledPrice: {
-      type: Number
-    }
+      type: Number,
+    },
   },
   {
     toJSON: {

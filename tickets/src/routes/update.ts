@@ -1,11 +1,12 @@
 import {
   BadRequestError,
   restrictRoute,
+  TicketStatus,
   UserRoles,
   verifyToken,
 } from "@hrrtickets/common";
 import express, { NextFunction, Request, Response } from "express";
-import { Ticket, TicketStatusType } from "../models/tickets";
+import { Ticket } from "../models/tickets";
 import { TicketUpdateDto } from "../types/requestDto";
 import { TicketUpdatedPublisher } from "../events/publishers/ticket-updated-publisher";
 import { natsClient } from "../nats-client";
@@ -29,7 +30,11 @@ router.put(
       );
     }
 
-    if (!!ticket.order) {
+    if (
+      !!ticket.order &&
+      ticket.order !== null &&
+      ticket.status !== TicketStatus.InStock
+    ) {
       return next(
         new BadRequestError("Update Not Permissible: Ticket is Reserved", 403)
       );
@@ -49,6 +54,7 @@ router.put(
         title: ticket.title,
         price: ticket.price,
         version: ticket.version,
+        maxResalePrice: ticket.maxResalePrice,
       });
     }
 

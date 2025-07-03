@@ -4,6 +4,7 @@ import {
   OrderCreatedEvent,
   OrderStatus,
   Subjects,
+  TicketStatus,
 } from "@hrrtickets/common";
 import { queueGroupName } from "./queue-group-name";
 import { Message } from "node-nats-streaming";
@@ -29,6 +30,7 @@ export class OrderCreatedListener extends Listener<OrderCreatedEvent> {
         id: data.id,
         user: data.user,
       },
+      status: TicketStatus.Reserved,
     });
 
     await ticket.save();
@@ -38,6 +40,7 @@ export class OrderCreatedListener extends Listener<OrderCreatedEvent> {
       title: ticket.title,
       price: ticket.price,
       version: ticket.version,
+      resaledPrice: ticket.resaledPrice!,
     });
 
     msg.ack();

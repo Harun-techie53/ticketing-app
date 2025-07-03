@@ -13,7 +13,7 @@ import { natsClient } from "../../nats-client";
 
 const router = express.Router();
 
-const EXPIRATION_WINDOW_SECONDS = 2 * 60;
+const EXPIRATION_WINDOW_SECONDS = 5 * 60;
 
 router.post(
   "/api/tickets/auctions",

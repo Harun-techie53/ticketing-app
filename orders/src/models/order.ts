@@ -22,6 +22,7 @@ interface OrderDoc extends mongoose.Document {
   version: number;
   resaled: boolean;
   resaledAt?: Date;
+  createdAt: Date;
 }
 
 const orderSchema = new mongoose.Schema(

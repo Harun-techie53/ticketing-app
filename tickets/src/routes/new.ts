@@ -53,6 +53,7 @@ router.post(
       title: newTicket.title,
       price: newTicket.price,
       version: newTicket.version,
+      maxResalePrice: newTicket.maxResalePrice,
     });
 
     res.status(201).send({ data: newTicket });

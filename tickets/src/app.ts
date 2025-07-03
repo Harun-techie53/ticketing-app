@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { errorHandler, NotFoundError } from "@hrrtickets/common";
@@ -10,8 +10,13 @@ import { updateAuctionRouter } from "./routes/auction/update";
 import { getAllAuctionsRouter } from "./routes/auction/view";
 
 const app = express();
-app.use(express.json());
 app.use(cookieParser());
+app.use(express.json());
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  console.log(`[${req.method}] ${req.path}`);
+  next();
+});
 
 app.use(updateRouter);
 app.use(createRouter);
@@ -20,12 +25,12 @@ app.use(updateAuctionRouter);
 app.use(getAllAuctionsRouter);
 app.use(getRouter);
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("OK");
-});
-
 app.get("/api/tickets/test/hello", (req, res, next) => {
   res.send("HELLO");
+});
+
+app.get("/", (req: Request, res: Response) => {
+  res.send("OK");
 });
 
 app.all("*", () => {

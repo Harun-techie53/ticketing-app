@@ -28,6 +28,7 @@ export class AuctionExpiredListener extends Listener<AuctionExpiredEvent> {
     if (!!auction.highestBidder) {
       auction.ticket.set({
         resaledPrice: auction.highestBidder.price,
+        maxResalePrice: parseInt(auction.highestBidder.price.toString()) + 10,
       });
 
       await auction.ticket.save();
@@ -37,12 +38,15 @@ export class AuctionExpiredListener extends Listener<AuctionExpiredEvent> {
         title: auction.ticket.title,
         price: auction.ticket.price,
         version: auction.ticket.version,
+        maxResalePrice: auction.ticket.maxResalePrice,
+        resaledPrice: auction.ticket.resaledPrice!,
       });
 
       new AuctionEndedPublisher(this.client).publish({
         ticket: {
           id: auction.ticket.id,
           orderId: auction.ticket.order.id,
+          resaledPrice: auction.ticket.resaledPrice,
         },
         highestBidder: {
           userId: auction.highestBidder.userId,

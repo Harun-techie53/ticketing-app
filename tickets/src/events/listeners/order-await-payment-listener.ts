@@ -32,6 +32,7 @@ export class OrderAwaitPaymentListener extends Listener<OrderAwaitPaymentEvent> 
       title: ticket.title,
       price: ticket.price,
       version: ticket.version,
+      resaledPrice: ticket.resaledPrice!,
     });
 
     msg.ack();

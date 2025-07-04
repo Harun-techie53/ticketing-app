@@ -12,6 +12,13 @@ metadata:
     nginx.ingress.kubernetes.io/cors-allow-credentials: "true"
     nginx.ingress.kubernetes.io/cors-max-age: "86400"
     nginx.ingress.kubernetes.io/cors-expose-headers: "Content-Length,Content-Range,x-auth-token"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection "upgrade";
+      proxy_http_version 1.1;
+
 spec:
   ingressClassName: nginx
   tls:
@@ -30,6 +37,13 @@ spec:
                 port:
                   number: 3000
           - path: /api/tickets
+            pathType: Prefix
+            backend:
+              service:
+                name: tickets-srv
+                port:
+                  number: 3000
+          - path: /socket.io
             pathType: Prefix
             backend:
               service:

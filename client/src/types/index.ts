@@ -12,7 +12,7 @@ export enum ToastType {
 }
 
 export interface BidDoc {
-  id: string;
+  _id: string;
   userId: string;
   price: number;
   placedAt: Date;

@@ -7,6 +7,7 @@ import express, { NextFunction, Request, Response } from "express";
 import mongoose from "mongoose";
 import { Auction, AuctionStatusType, BidDoc } from "../../models/auction";
 import { body } from "express-validator";
+import { getAllConnections, getIO } from "../../socket";
 
 const router = express.Router();
 
@@ -71,6 +72,13 @@ router.put(
     });
 
     await auction.save();
+
+    const io = getIO();
+
+    io.emit("auction-update", {
+      bids: auction.bids,
+      highestBidder: auction.highestBidder,
+    });
 
     res.status(200).json({
       data: auction,

@@ -1,6 +1,8 @@
 "use client";
 import { apiPost } from "@/helpers/axios/config";
+import socket from "@/helpers/socket";
 import { User } from "@/types";
+import { useEffect, useState } from "react";
 
 interface ISignInResponse {
   token: string;
@@ -8,11 +10,5 @@ interface ISignInResponse {
 }
 
 export default function Home() {
-  return (
-    <div>
-      <div className="text-center">
-        <h1>HELLO WORLD</h1>
-      </div>
-    </div>
-  );
+  return <div></div>;
 }

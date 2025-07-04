@@ -20,7 +20,9 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log(`[${req.method}] ${req.path}`);
+  if (req.path !== "/") {
+    console.log(`[${req.method}] ${req.path}`);
+  }
   next();
 });
 
@@ -40,6 +42,7 @@ app.post("/api/users/test", (req: Request, res: Response) => {
   console.log("req.headers", req.headers, "req.cookies", req.cookies);
   res.send("Test POST REQUEST");
 });
+
 app.get("/", (req: Request, res: Response) => {
   res.send("OK");
 });

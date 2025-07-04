@@ -6,6 +6,7 @@ import { OrderCancelledListener } from "./events/listeners/order-cancelled-liste
 import { AuctionExpiredListener } from "./events/listeners/auction-expired-listener";
 import { OrderAwaitPaymentListener } from "./events/listeners/order-await-payment-listener";
 import { OrderCompletedListener } from "./events/listeners/order-completed-listener";
+import { initSocket } from "./socket";
 
 const start = async () => {
   if (!process.env.JWT_KEY) {
@@ -54,8 +55,10 @@ const start = async () => {
     process.exit(1);
   }
 
-  app.listen(3000, () => {
-    console.log("Listening on port 3000!!!!");
+  const { httpServer } = initSocket(app);
+
+  httpServer.listen(3000, () => {
+    console.log("Listening on port 3000");
   });
 };
 

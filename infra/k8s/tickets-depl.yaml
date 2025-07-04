@@ -15,7 +15,11 @@ spec:
       containers:
         - name: tickets
           image: harun1809030/ticketing-tickets
+          ports:
+            - containerPort: 3000
           env:
+            - name: DEBUG
+              value: "socket.io*"
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
@@ -31,8 +35,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-          ports:
-            - containerPort: 3000
           readinessProbe:
             httpGet:
               path: /

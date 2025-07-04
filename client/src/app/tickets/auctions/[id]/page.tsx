@@ -1,6 +1,7 @@
 "use client";
 
-import { apiGet } from "@/helpers/axios/config";
+import { apiGet, apiPut } from "@/helpers/axios/config";
+import socket from "@/helpers/socket";
 import { Auction, AuctionStatusType, BidDoc, User } from "@/types";
 import React, { useEffect, useState, use } from "react";
 
@@ -15,7 +16,14 @@ interface AuctionWithBids extends Auction {
 
 const AuctionPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = use(params);
-  const [auction, setAuction] = useState<AuctionWithBids | null>(null);
+  const [auction, setAuction] = useState<Auction | null>(null);
+  const [auctionPrice, setAuctionPrice] = useState("");
+  const [error, setError] = useState("");
+  const [socketMessage, setSocketMessage] = useState(null);
+  const [auctionBids, setAuctionBids] = useState<Auction["bids"]>([]);
+  const [highestBidder, setHighestBidder] = useState<
+    Auction["highestBidder"] | null
+  >(null);
 
   const fetchAuction = async () => {
     try {
@@ -23,42 +31,69 @@ const AuctionPage = ({ params }: { params: Promise<{ id: string }> }) => {
         apiPath: `/api/tickets/auctions/${id}`,
       });
 
-      const bidsWithUsers: AuctionBid[] = await Promise.all(
-        auction.bids?.map(async (bid: BidDoc) => {
-          const bidUser = await apiGet<User>({
-            apiPath: `/api/users/${bid.userId}`,
-          });
-          return {
-            ...bid,
-            user: {
-              ...bidUser,
-              fullName: `${bidUser.firstName} ${bidUser.lastName}`,
-            },
-          };
-        }) || []
-      );
+      setAuctionBids(auction.bids);
+      setAuction(auction);
+      setHighestBidder(auction.highestBidder);
 
-      const highestBidderUser = await apiGet<User>({
-        apiPath: `/api/users/${auction.highestBidder.userId}`,
-      });
+      // const bidsWithUsers: AuctionBid[] = await Promise.all(
+      //   auction.bids?.map(async (bid: BidDoc) => {
+      //     const bidUser = await apiGet<User>({
+      //       apiPath: `/api/users/${bid.userId}`,
+      //     });
+      //     return {
+      //       ...bid,
+      //       user: {
+      //         ...bidUser,
+      //         fullName: `${bidUser.firstName} ${bidUser.lastName}`,
+      //       },
+      //     };
+      //   }) || []
+      // );
 
-      const highestBidder: AuctionBid = {
-        ...auction.highestBidder,
-        user: {
-          ...highestBidderUser,
-          fullName: `${highestBidderUser.firstName} ${highestBidderUser.lastName}`,
-        },
-      };
+      // const highestBidderUser = await apiGet<User>({
+      //   apiPath: `/api/users/${auction.highestBidder.userId}`,
+      // });
 
-      const auctionModified: AuctionWithBids = {
-        ...auction,
-        bids: bidsWithUsers,
-        highestBidder,
-      };
+      // const highestBidder: AuctionBid = {
+      //   ...auction.highestBidder,
+      //   user: {
+      //     ...highestBidderUser,
+      //     fullName: `${highestBidderUser.firstName} ${highestBidderUser.lastName}`,
+      //   },
+      // };
 
-      setAuction(auctionModified);
+      // const auctionModified: AuctionWithBids = {
+      //   ...auction,
+      //   bids: bidsWithUsers,
+      //   highestBidder,
+      // };
     } catch (error) {
       console.error("Error fetching auction:", error);
+    }
+  };
+
+  const handleSubmitBid = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!auction) return;
+
+    if (parseInt(auctionPrice) < auction.basePrice) {
+      setError("Bid price cannot be less than auction base price");
+      return;
+    }
+
+    setError("");
+
+    try {
+      const response = await apiPut({
+        apiPath: `/api/tickets/auctions/${auction?.id}`,
+        data: {
+          price: parseInt(auctionPrice),
+        },
+        withCredentials: true,
+      });
+    } catch (error) {
+      console.log("error", error);
     }
   };
 
@@ -66,8 +101,25 @@ const AuctionPage = ({ params }: { params: Promise<{ id: string }> }) => {
     fetchAuction();
   }, [id]);
 
+  useEffect(() => {
+    if (!id) return;
+    // socket.emit("join", id);
+
+    socket.on("auction-update", (data) => {
+      // setSocketMessage(data.bid.message);
+      setAuctionBids((prev) => [...prev, ...data.bids]);
+      setHighestBidder(data.highestBidder);
+      console.log("Data ", data)
+    });
+
+    // return () => {
+    //   socket.off("auction:update");
+    // };
+  }, [id]);
+
   return (
     <div className="container mx-auto px-6 py-10">
+      <p>Socket Message: {socketMessage || ""}</p>
       {auction ? (
         <div className="space-y-8">
           <div className="text-center">
@@ -128,12 +180,15 @@ const AuctionPage = ({ params }: { params: Promise<{ id: string }> }) => {
             <div className="card-body">
               <h3 className="text-xl font-semibold mb-4">📈 Listed Bids</h3>
 
-              {auction.bids?.length > 0 ? (
+              {auctionBids?.length > 0 ? (
                 <div className="space-y-4">
-                  {auction.bids.map((bid) => (
-                    <div key={bid.id} className="bg-gray-50 p-4 rounded border">
+                  {auctionBids.map((bid) => (
+                    <div
+                      key={bid._id}
+                      className="bg-gray-50 p-4 rounded border"
+                    >
                       <p>
-                        <strong>Bidder:</strong> {bid.user.fullName}
+                        <strong>Bidder:</strong> {bid.userId}
                       </p>
                       <p>
                         <strong>Amount:</strong>{" "}
@@ -150,40 +205,34 @@ const AuctionPage = ({ params }: { params: Promise<{ id: string }> }) => {
                 <p className="text-gray-500 mb-4">No bids placed yet.</p>
               )}
 
-              {/* Place Bid Form */}
               {/* {auction.status === AuctionStatusType.Active && ( */}
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    const formData = new FormData(e.currentTarget);
-                    const price = parseFloat(formData.get("price") as string);
-                    if (isNaN(price) || price <= 0) return;
-
-                    // TODO: Add API call to submit the bid
-                    console.log("Placing bid of: ", price);
-                  }}
-                  className="mt-6 space-y-4"
-                >
-                  <div className="form-control">
-                    <label className="label">
-                      <span className="label-text font-semibold">
-                        Your Bid Amount ($)
-                      </span>
-                    </label>
+              <form onSubmit={handleSubmitBid} className="mt-6 space-y-4">
+                {error && (
+                  <p className="text-error text-sm font-medium">{error}</p>
+                )}
+                <div className="form-control space-x-2">
+                  <label className="label">
+                    <span className="label-text font-semibold">
+                      Your Bid Amount
+                    </span>
+                  </label>
+                  <label className="input input-bordered w-full max-w-xs">
+                    <span className="label">$</span>
                     <input
                       name="price"
                       type="number"
-                      min="0.01"
-                      step="0.01"
+                      min={auction.basePrice}
+                      value={auctionPrice}
+                      onChange={(e) => setAuctionPrice(e.target.value)}
                       required
                       placeholder="Enter amount"
-                      className="input input-bordered w-full max-w-xs"
                     />
-                  </div>
+                  </label>
                   <button className="btn btn-primary w-fit" type="submit">
                     Place Bid
                   </button>
-                </form>
+                </div>
+              </form>
               {/* )} */}
             </div>
           </div>
@@ -193,19 +242,15 @@ const AuctionPage = ({ params }: { params: Promise<{ id: string }> }) => {
             <div className="card-body">
               <h3 className="text-xl font-semibold mb-4">🏆 Highest Bidder</h3>
               <p>
-                <strong>Bidder:</strong> {auction.highestBidder.user.fullName}
+                <strong>Bidder:</strong> {highestBidder?.userId}
               </p>
               <p>
                 <strong>Amount:</strong>{" "}
-                <span className="text-success">
-                  ${auction.highestBidder.price}
-                </span>
+                <span className="text-success">${highestBidder?.price}</span>
               </p>
               <p>
                 <strong>Time:</strong>{" "}
-                {new Date(
-                  auction.highestBidder.placedAt as Date
-                ).toLocaleString()}
+                {new Date(highestBidder?.placedAt as Date).toLocaleString()}
               </p>
             </div>
           </div>

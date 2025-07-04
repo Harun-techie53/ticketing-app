@@ -22,6 +22,7 @@ router.post(
   validateRequest,
   async (req: Request, res: Response, next: NextFunction) => {
     const { ticketId, basePrice } = req.body;
+    let { expiresAt } = req.body;
     if (!mongoose.isValidObjectId(ticketId)) {
       return next(new BadRequestError("Ticket Id is not valid", 400));
     }
@@ -49,9 +50,11 @@ router.post(
       );
     }
 
-    const expiresAt = new Date();
+    if (!expiresAt) {
+      expiresAt = new Date();
 
-    expiresAt.setSeconds(expiresAt.getSeconds() + EXPIRATION_WINDOW_SECONDS);
+      expiresAt.setSeconds(expiresAt.getSeconds() + EXPIRATION_WINDOW_SECONDS);
+    }
 
     const auction = Auction.build({
       ticket,

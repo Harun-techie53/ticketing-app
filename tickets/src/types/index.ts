@@ -1,5 +1,5 @@
 import { UserRoles } from "@hrrtickets/common";
-import { JwtPayload } from "jsonwebtoken";
+import { Server } from "socket.io";
 
 declare global {
   namespace Express {
@@ -16,6 +16,7 @@ declare global {
         id: string;
         role: UserRoles;
       };
+      io?: Server;
     }
   }
 }

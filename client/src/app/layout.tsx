@@ -5,6 +5,7 @@ import ToastWrapper from "@/components/wrappers/toastWrapper";
 import { ToastProvider } from "@/contexts/ToastContext";
 import Header from "@/components/header";
 import { AuthProvider } from "@/contexts/authContext";
+import SocketWrapper from "@/components/wrappers/socketWrapper";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
       >
         <ToastProvider>
           <ToastWrapper />
+          <SocketWrapper />
           <AuthProvider>
             <Header />
             {children}

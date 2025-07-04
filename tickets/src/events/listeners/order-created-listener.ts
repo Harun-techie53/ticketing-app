@@ -41,6 +41,7 @@ export class OrderCreatedListener extends Listener<OrderCreatedEvent> {
       price: ticket.price,
       version: ticket.version,
       resaledPrice: ticket.resaledPrice!,
+      maxResalePrice: ticket.maxResalePrice,
     });
 
     msg.ack();

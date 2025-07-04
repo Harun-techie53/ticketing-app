@@ -1,6 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
 import cookieParser from "cookie-parser";
-import cors from "cors";
 import { errorHandler, NotFoundError } from "@hrrtickets/common";
 import { createRouter } from "./routes/new";
 import { getRouter } from "./routes/view";
@@ -14,7 +13,9 @@ app.use(cookieParser());
 app.use(express.json());
 
 app.use((req: Request, res: Response, next: NextFunction) => {
-  console.log(`[${req.method}] ${req.path}`);
+  if (req.path !== "/" && req.path !== "/socket.io/") {
+    console.log(`[${req.method}] ${req.path}`);
+  }
   next();
 });
 

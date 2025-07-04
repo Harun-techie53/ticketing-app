@@ -1,4 +1,5 @@
 import {
+  BadRequestError,
   restrictRoute,
   UserRoles,
   validateRequest,
@@ -35,6 +36,12 @@ router.post(
 
     if (!maxResalePrice) {
       maxResalePrice = price + 10;
+    } else {
+      if (maxResalePrice < price) {
+        return next(
+          new BadRequestError("Max resale price cannot be less than price")
+        );
+      }
     }
 
     const newTicket = Ticket.build({

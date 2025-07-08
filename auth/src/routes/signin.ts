@@ -38,8 +38,6 @@ router.post(
 
     const userJwt = getJwtToken(user.id, user.role);
 
-    res.setHeader("x-auth-token", userJwt);
-
     res.cookie("jwt", userJwt, {
       httpOnly: true,
       secure: true,

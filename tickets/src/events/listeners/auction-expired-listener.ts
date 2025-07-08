@@ -13,7 +13,9 @@ export class AuctionExpiredListener extends Listener<AuctionExpiredEvent> {
     data: AuctionExpiredEvent["data"],
     msg: Message
   ): Promise<void> {
-    const auction = await Auction.findById(data.id).populate("ticket");
+    let auction = await Auction.findById(data.id)
+      .populate("ticket")
+      .populate("highestBidder.user");
 
     if (!auction) {
       throw new Error("Auction not found");
@@ -49,7 +51,7 @@ export class AuctionExpiredListener extends Listener<AuctionExpiredEvent> {
           resaledPrice: auction.ticket.resaledPrice,
         },
         highestBidder: {
-          userId: auction.highestBidder.userId,
+          userId: auction.highestBidder.user.id,
           price: auction.highestBidder.price,
         },
       });

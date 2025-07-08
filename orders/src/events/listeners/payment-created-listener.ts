@@ -29,7 +29,7 @@ export class PaymentCreatedListener extends Listener<PaymentCreatedEvent> {
 
     await order.save();
 
-    await new OrderCompletedPublisher(this.client).publish({
+    new OrderCompletedPublisher(this.client).publish({
       id: order.id,
       version: order.version,
       status: order.status,

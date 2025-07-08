@@ -3,6 +3,7 @@ import { queueGroupName } from "./queue-group-name";
 import { Message } from "node-nats-streaming";
 import { Ticket } from "../../models/tickets";
 import { TicketUpdatedPublisher } from "../publishers/ticket-updated-publisher";
+import { User } from "../../models/user";
 
 export class OrderAwaitPaymentListener extends Listener<OrderAwaitPaymentEvent> {
   subject: Subjects = Subjects.OrderAwaitPayment;
@@ -13,15 +14,20 @@ export class OrderAwaitPaymentListener extends Listener<OrderAwaitPaymentEvent> 
     msg: Message
   ): Promise<void> {
     const ticket = await Ticket.findById(data.ticketId);
+    const user = await User.findById(data.userId);
 
     if (!ticket) {
       throw new Error("Ticket not found");
     }
 
+    if (!user) {
+      throw new Error("User not found");
+    }
+
     ticket.set({
       order: {
         id: data.id,
-        user: data.userId,
+        user,
       },
     });
 

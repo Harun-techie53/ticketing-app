@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { TicketDoc } from "./tickets";
+import { UserDoc } from "./user";
 
 interface AuctionAttrs {
   ticket: TicketDoc;
@@ -14,7 +15,7 @@ export enum AuctionStatusType {
 }
 
 export interface BidDoc {
-  userId: string;
+  user: UserDoc;
   price: number;
   placedAt: Date;
 }
@@ -33,8 +34,9 @@ interface AuctionModel extends mongoose.Model<AuctionDoc> {
 }
 
 const bidSchema = new mongoose.Schema({
-  userId: {
-    type: String,
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
   },
   price: {
     type: Number,
@@ -65,6 +67,10 @@ const auctionSchema = new mongoose.Schema(
     },
     highestBidder: bidSchema,
     bids: [bidSchema],
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
   },
   {
     toJSON: {

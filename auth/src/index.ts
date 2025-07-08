@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { app } from "./app";
+import { natsClient } from "./nats-client";
 
 const start = async () => {
   if (!process.env.JWT_KEY) {
@@ -10,7 +11,30 @@ const start = async () => {
     throw new Error("MONGO_URI not defined yet");
   }
 
+  if (!process.env.NATS_CLUSTER_ID) {
+    throw new Error("NATS Cluster ID not defined yet");
+  }
+
+  if (!process.env.NATS_CLIENT_URL) {
+    throw new Error("NATS Client URL not defined yet");
+  }
+
+  if (!process.env.NATS_CLIENT_ID) {
+    throw new Error("NATS Client ID not defined yet");
+  }
+
   try {
+    await natsClient.connect(
+      process.env.NATS_CLUSTER_ID,
+      process.env.NATS_CLIENT_ID,
+      process.env.NATS_CLIENT_URL
+    );
+    natsClient.client.on("close", () => {
+      console.log("NATS connection closed!");
+      process.exit();
+    });
+    process.on("SIGINT", () => natsClient.client.close());
+    process.on("SIGTERM", () => natsClient.client.close());
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to database");
   } catch (error) {

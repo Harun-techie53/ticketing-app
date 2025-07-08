@@ -10,6 +10,7 @@ import { queueGroupName } from "./queue-group-name";
 import { Message } from "node-nats-streaming";
 import { Ticket } from "../../models/tickets";
 import { TicketUpdatedPublisher } from "../publishers/ticket-updated-publisher";
+import { User } from "../../models/user";
 
 export class OrderCreatedListener extends Listener<OrderCreatedEvent> {
   subject = Subjects.OrderCreated;
@@ -20,9 +21,14 @@ export class OrderCreatedListener extends Listener<OrderCreatedEvent> {
     msg: Message
   ): Promise<void> {
     const ticket = await Ticket.findById(data.ticket.id);
+    const user = await User.findById(data.user);
 
     if (!ticket) {
       throw new Error("Ticket not found");
+    }
+
+    if (!user) {
+      throw new Error("User not found");
     }
 
     ticket.set({
@@ -35,7 +41,7 @@ export class OrderCreatedListener extends Listener<OrderCreatedEvent> {
 
     await ticket.save();
 
-    await new TicketUpdatedPublisher(this.client).publish({
+    new TicketUpdatedPublisher(this.client).publish({
       id: ticket.id,
       title: ticket.title,
       price: ticket.price,

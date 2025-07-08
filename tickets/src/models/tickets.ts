@@ -1,13 +1,14 @@
 import { TicketStatus } from "@hrrtickets/common";
 import mongoose from "mongoose";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
+import { UserDoc } from "./user";
 
 export interface TicketAttrs {
   title: string;
   description: string;
   status: TicketStatus;
   price: number;
-  user: string;
+  user: UserDoc;
   maxResalePrice: number;
 }
 
@@ -16,11 +17,11 @@ export interface TicketDoc extends mongoose.Document {
   description: string;
   status: TicketStatus;
   price: number;
-  user: string;
+  user: UserDoc;
   version: number;
   order: {
     id: string;
-    user: string;
+    user: UserDoc;
   };
   maxResalePrice: number;
   resaledPrice: number | null;
@@ -34,7 +35,7 @@ const ticketSchema = new mongoose.Schema(
   {
     user: {
       type: mongoose.Schema.Types.ObjectId,
-      required: true,
+      ref: "User",
     },
     title: {
       type: String,
@@ -58,7 +59,8 @@ const ticketSchema = new mongoose.Schema(
         type: String,
       },
       user: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
       },
     },
     maxResalePrice: {
@@ -67,6 +69,10 @@ const ticketSchema = new mongoose.Schema(
     },
     resaledPrice: {
       type: Number,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
     },
   },
   {

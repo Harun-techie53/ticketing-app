@@ -17,6 +17,10 @@ const start = async () => {
     throw new Error("MONGO URI not defined yet");
   }
 
+  if (!process.env.CLIENT_URL) {
+    throw new Error("CLIENT URL not defined yet");
+  }
+
   if (!process.env.NATS_CLUSTER_ID) {
     throw new Error("NATS Cluster ID not defined yet");
   }

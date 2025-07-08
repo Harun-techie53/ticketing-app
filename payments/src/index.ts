@@ -5,6 +5,7 @@ import { OrderCompletedListener } from "./events/listeners/order-completed-liste
 import { OrderCreatedListener } from "./events/listeners/order-created-listener";
 import { OrderCancelledListener } from "./events/listeners/order-cancelled-listener";
 import { OrderAwaitPaymentListener } from "./events/listeners/order-await-payment-listener";
+import { UserCreatedListener } from "./events/listeners/user-created-listener";
 
 const start = async () => {
   if (!process.env.STRIPE_SECRET_KEY) {
@@ -48,6 +49,7 @@ const start = async () => {
     new OrderCancelledListener(natsClient.client).listen();
     new OrderCompletedListener(natsClient.client).listen();
     new OrderAwaitPaymentListener(natsClient.client).listen();
+    new UserCreatedListener(natsClient.client).listen();
 
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to database");

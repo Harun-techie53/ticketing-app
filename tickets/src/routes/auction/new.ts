@@ -10,6 +10,7 @@ import { Ticket } from "../../models/tickets";
 import { Auction, AuctionStatusType } from "../../models/auction";
 import { AuctionCreatedPublisher } from "../../events/publishers/auction-created-publisher";
 import { natsClient } from "../../nats-client";
+import { User } from "../../models/user";
 
 const router = express.Router();
 
@@ -27,7 +28,7 @@ router.post(
       return next(new BadRequestError("Ticket Id is not valid", 400));
     }
 
-    const ticket = await Ticket.findById(ticketId);
+    const ticket = await Ticket.findById(ticketId).populate("order.user");
 
     if (!ticket) {
       return next(new BadRequestError("Ticket not found", 404));
@@ -37,7 +38,9 @@ router.post(
       return next(new BadRequestError("Ticket is not ordered yet", 400));
     }
 
-    if (req.currentUser?.id !== ticket.order.user) {
+    console.log("ticket order ", ticket.order);
+
+    if (req.currentUser?.id !== ticket.order.user.id) {
       return next(new BadRequestError("Ticket not belong to the user", 401));
     }
 
@@ -49,6 +52,8 @@ router.post(
         )
       );
     }
+
+    const user = await User.findById(ticket.order.user.id);
 
     if (!expiresAt) {
       expiresAt = new Date();
@@ -71,7 +76,10 @@ router.post(
     });
 
     res.status(201).json({
-      data: auction,
+      data: {
+        ...auction,
+        createdBy: user,
+      },
     });
   }
 );

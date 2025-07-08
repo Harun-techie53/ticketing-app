@@ -26,10 +26,6 @@ app.use(updateAuctionRouter);
 app.use(getAllAuctionsRouter);
 app.use(getRouter);
 
-app.get("/api/tickets/test/hello", (req, res, next) => {
-  res.send("HELLO");
-});
-
 app.get("/", (req: Request, res: Response) => {
   res.send("OK");
 });

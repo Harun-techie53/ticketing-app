@@ -7,7 +7,7 @@ const router = express.Router();
 router.get(
   "/api/tickets",
   async (req: Request, res: Response, next: NextFunction) => {
-    const tickets = await Ticket.find();
+    const tickets = await Ticket.find().populate("order.user");
     res.status(200).send({ data: tickets });
   }
 );
@@ -15,7 +15,7 @@ router.get(
 router.get(
   "/api/tickets/:id",
   async (req: Request, res: Response, next: NextFunction) => {
-    const ticket = await Ticket.findById(req.params.id);
+    const ticket = await Ticket.findById(req.params.id).populate("order.user");
     res.status(200).send({ data: ticket });
   }
 );
@@ -27,7 +27,7 @@ router.get(
     const tickets = await Ticket.find({
       "order.user": req.currentUser?.id,
       status: TicketStatus.Reserved,
-    });
+    }).populate("order.user");
 
     res.status(200).json({
       data: tickets,

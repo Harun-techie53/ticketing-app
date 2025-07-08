@@ -11,6 +11,7 @@ import { TicketDto } from "../types/requestDto";
 import { Ticket } from "../models/tickets";
 import { TicketCreatedPublisher } from "../events/publishers/ticket-created-publisher";
 import { natsClient } from "../nats-client";
+import { User } from "../models/user";
 
 const router = express.Router();
 
@@ -44,12 +45,18 @@ router.post(
       }
     }
 
+    const user = await User.findById(req.currentUser?.id);
+
+    if (!user) {
+      return next(new BadRequestError("User not found"));
+    }
+
     const newTicket = Ticket.build({
       title,
       description,
       status,
       price,
-      user: req.currentUser?.id as string,
+      user,
       maxResalePrice,
     });
 

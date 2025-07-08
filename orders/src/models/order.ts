@@ -2,9 +2,10 @@ import { OrderStatus } from "@hrrtickets/common";
 import mongoose from "mongoose";
 import { TicketDoc } from "./ticket";
 import { updateIfCurrentPlugin } from "mongoose-update-if-current";
+import { UserDoc } from "./user";
 
 interface OrderAttrs {
-  user: string;
+  user: UserDoc;
   status: OrderStatus;
   expiresAt?: Date;
   ticket: TicketDoc;
@@ -15,7 +16,7 @@ interface OrderModel extends mongoose.Model<OrderDoc> {
 }
 
 interface OrderDoc extends mongoose.Document {
-  user: string;
+  user: UserDoc;
   status: OrderStatus;
   expiresAt: Date;
   ticket: TicketDoc;
@@ -28,8 +29,8 @@ interface OrderDoc extends mongoose.Document {
 const orderSchema = new mongoose.Schema(
   {
     user: {
-      type: String,
-      required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
     status: {
       type: String,

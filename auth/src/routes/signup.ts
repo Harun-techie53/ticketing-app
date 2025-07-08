@@ -8,6 +8,8 @@ import {
   UserRoles,
   validateRequest,
 } from "@hrrtickets/common";
+import { UserCreatedPublisher } from "../events/publishers/user-created-publisher";
+import { natsClient } from "../nats-client";
 
 const router = express.Router();
 
@@ -41,6 +43,14 @@ router.post(
 
     const newUser = User.build({ firstName, lastName, email, password, role });
     await newUser.save();
+
+    new UserCreatedPublisher(natsClient.client).publish({
+      id: newUser.id,
+      firstName: newUser.firstName,
+      lastName: newUser.lastName,
+      email: newUser.email,
+      role: newUser.role,
+    });
 
     const userJwt = getJwtToken(newUser.id, newUser.role);
 

@@ -5,17 +5,9 @@ import { signoutRouter } from "./routes/signout";
 import { signupRouter } from "./routes/signup";
 import { userRouter } from "./routes/users";
 import cookieParser from "cookie-parser";
-import cors from "cors";
 import { errorHandler, NotFoundError, verifyToken } from "@hrrtickets/common";
 
 const app = express();
-
-app.use(
-  cors({
-    origin: "http://localhhost:3000",
-    credentials: true,
-  })
-);
 app.use(cookieParser());
 app.use(express.json());
 

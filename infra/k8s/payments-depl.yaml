@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: payments
-          image: harun1809030/ticketing-payments
+          image: harun1809030/ticketing-payments:latest
           env:
             - name: JWT_KEY
               valueFrom:
@@ -27,7 +27,10 @@ spec:
                   name: cluster-secrets
                   key: STRIPE_SECRET_KEY
             - name: MONGO_URI
-              value: "mongodb+srv://harun:23113296460012834@cluster0.kcvr2uw.mongodb.net/payments?retryWrites=true&w=majority&appName=Cluster0"
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-secrets
+                  key: MONGO_URI_PAYMENTS
             - name: NATS_CLUSTER_ID
               value: "ticketing"
             - name: NATS_CLIENT_URL

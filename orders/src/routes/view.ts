@@ -14,9 +14,9 @@ router.get(
   "/api/orders/me",
   verifyToken,
   async (req: Request, res: Response, next: NextFunction) => {
-    const orders = await Order.find({ user: req.currentUser?.id }).populate(
-      "ticket"
-    );
+    const orders = await Order.find({ user: req.currentUser?.id })
+      .populate("ticket")
+      .populate("user");
 
     res.status(200).send({ data: orders });
   }
@@ -39,20 +39,24 @@ router.get(
   "/api/orders/:id",
   verifyToken,
   async (req: Request, res: Response, next: NextFunction) => {
-    const {id: orderId} = req.params;
+    const { id: orderId } = req.params;
 
     if (!mongoose.isValidObjectId(orderId)) {
       return next(new BadRequestError("Id is not valid", 400));
     }
 
-    const order = await Order.findById(orderId).populate("ticket");
+    const order = await Order.findById(orderId)
+      .populate("ticket")
+      .populate("user");
 
-    
     if (!order) {
       return next(new BadRequestError("Order not found", 404));
     }
 
-    if(req.currentUser?.id !== order.user && req.currentUser?.role !== UserRoles.Admin) {
+    if (
+      req.currentUser?.id !== order.user.id &&
+      req.currentUser?.role !== UserRoles.Admin
+    ) {
       return next(new BadRequestError("Not authorized to access order", 401));
     }
 

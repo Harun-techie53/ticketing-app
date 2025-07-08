@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: tickets
-          image: harun1809030/ticketing-tickets
+          image: harun1809030/ticketing-tickets:latest
           ports:
             - containerPort: 3000
           env:
@@ -26,7 +26,10 @@ spec:
                   name: cluster-secrets
                   key: JWT_KEY
             - name: MONGO_URI
-              value: "mongodb+srv://harun:23113296460012834@cluster0.kcvr2uw.mongodb.net/tickets?retryWrites=true&w=majority&appName=Cluster0"
+              valueFrom: 
+                secretKeyRef: 
+                  name: cluster-secrets
+                  key: MONGO_URI_TICKETS
             - name: NATS_CLUSTER_ID
               value: "ticketing"
             - name: NATS_CLIENT_URL
@@ -35,6 +38,11 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: CLIENT_URL
+              valueFrom: 
+                secretKeyRef:
+                  name: cluster-secrets
+                  key: CLIENT_URL
           readinessProbe:
             httpGet:
               path: /

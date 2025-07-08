@@ -8,6 +8,7 @@ import mongoose from "mongoose";
 import { Auction, AuctionStatusType, BidDoc } from "../../models/auction";
 import { body } from "express-validator";
 import { getAllConnections, getIO } from "../../socket";
+import { User } from "../../models/user";
 
 const router = express.Router();
 
@@ -48,8 +49,10 @@ router.put(
       return next(new BadRequestError("Auction is not active anymore", 400));
     }
 
+    const user = await User.findById(req.currentUser?.id);
+
     const bid = {
-      userId: req.currentUser?.id.toString()!,
+      user,
       price,
       placedAt: new Date(),
     };
@@ -73,11 +76,16 @@ router.put(
 
     await auction.save();
 
+    const updatedAuction = await auction.populate([
+      { path: "bids.user" },
+      { path: "highestBidder.user" },
+    ]);
+
     const io = getIO();
 
     io.emit("auction-update", {
-      bids: auction.bids,
-      highestBidder: auction.highestBidder,
+      bids: updatedAuction.bids,
+      highestBidder: updatedAuction.highestBidder,
     });
 
     res.status(200).json({

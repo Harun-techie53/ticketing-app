@@ -6,6 +6,7 @@ import { TicketUpdatedListener } from "./events/listeners/ticket-updated-listene
 import { OrderExpiredListener } from "./events/listeners/order-expired-listener";
 import { PaymentCreatedListener } from "./events/listeners/payment-created-listener";
 import { AuctionEndedListener } from "./events/listeners/auction-ended-listener";
+import { UserCreatedListener } from "./events/listeners/user-created-listener";
 
 const start = async () => {
   if (!process.env.JWT_KEY) {
@@ -46,6 +47,7 @@ const start = async () => {
     new OrderExpiredListener(natsClient.client).listen();
     new PaymentCreatedListener(natsClient.client).listen();
     new AuctionEndedListener(natsClient.client).listen();
+    new UserCreatedListener(natsClient.client).listen();
 
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to database");

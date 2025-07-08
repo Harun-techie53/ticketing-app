@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: expiration
-          image: harun1809030/ticketing-expiration
+          image: harun1809030/ticketing-expiration:latest
           env:
             - name: NATS_CLUSTER_ID
               value: "ticketing"

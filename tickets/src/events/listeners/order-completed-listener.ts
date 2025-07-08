@@ -8,6 +8,7 @@ import {
 import { queueGroupName } from "./queue-group-name";
 import { Message } from "node-nats-streaming";
 import { Ticket } from "../../models/tickets";
+import { TicketUpdatedPublisher } from "../publishers/ticket-updated-publisher";
 
 export class OrderCompletedListener extends Listener<OrderCompletedEvent> {
   subject: Subjects = Subjects.OrderCompleted;
@@ -28,6 +29,15 @@ export class OrderCompletedListener extends Listener<OrderCompletedEvent> {
     });
 
     await ticket.save();
+
+    new TicketUpdatedPublisher(this.client).publish({
+      id: ticket.id,
+      title: ticket.title,
+      price: ticket.price,
+      version: ticket.version,
+      resaledPrice: ticket.resaledPrice!,
+      maxResalePrice: ticket.maxResalePrice,
+    });
 
     msg.ack();
   }

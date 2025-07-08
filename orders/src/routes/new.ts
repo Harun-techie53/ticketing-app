@@ -13,6 +13,7 @@ import { Ticket } from "../models/ticket";
 import { Order } from "../models/order";
 import mongoose from "mongoose";
 import { OrderCreatedPublisher } from "../events/publishers/order-created-publisher";
+import { User } from "../models/user";
 
 const router = express.Router();
 
@@ -37,6 +38,12 @@ router.post(
       return next(new BadRequestError("Ticket not found", 404));
     }
 
+    const user = await User.findById(req.currentUser?.id);
+
+    if (!user) {
+      return next(new BadRequestError("User not found"));
+    }
+
     // Make sure the ticket is not reserved already by user
     const isReserved = await ticket.isReserved();
 
@@ -52,7 +59,7 @@ router.post(
     // Build the order and save it to database
 
     const order = Order.build({
-      user: req.currentUser?.id as string,
+      user,
       status: OrderStatus.Created,
       expiresAt,
       ticket,
@@ -65,7 +72,7 @@ router.post(
     // Publish an event that an order was created
     new OrderCreatedPublisher(natsClient.client).publish({
       id: order.id,
-      user: order.user,
+      user: order.user.id,
       version: order.version,
       ticket: {
         id: order.ticket.id,

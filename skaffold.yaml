@@ -48,3 +48,11 @@ build:
         manual:
           - src: "src/**/*.tsx"
             dest: .
+    - image: harun1809030/ticketing-client
+      context: client-app
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        manual:
+          - src: "src/**/*.tsx"
+            dest: .

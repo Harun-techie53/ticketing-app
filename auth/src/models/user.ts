@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import { UserRoles } from "@hrrtickets/common";
+import { updateIfCurrentPlugin } from "mongoose-update-if-current";
 
 interface UserAttrs {
   firstName: string;
@@ -20,6 +21,7 @@ export interface UserDoc extends mongoose.Document {
   email: string;
   password: string;
   role: UserRoles;
+  createdAt: Date;
 }
 
 const userSchema = new mongoose.Schema(
@@ -45,6 +47,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    createdAt: {
+      type: Date,
+      default: Date.now(),
+    },
   },
   {
     toJSON: {
@@ -52,11 +58,14 @@ const userSchema = new mongoose.Schema(
         ret.id = ret._id;
         delete ret._id;
         delete ret.password;
-        delete ret.__v;
       },
     },
+    optimisticConcurrency: true,
+    versionKey: "version",
   }
 );
+
+userSchema.plugin(updateIfCurrentPlugin);
 
 userSchema.statics.build = (attrs: UserAttrs) => {
   return new User(attrs);

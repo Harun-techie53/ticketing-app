@@ -12,17 +12,30 @@ spec:
       labels:
         app: auth
     spec:
+      imagePullSecrets:
+        - name: regcred
       containers:
         - name: auth
-          image: harun1809030/ticketing-auth
+          image: harun1809030/ticketing-auth:latest
           env:
             - name: MONGO_URI
-              value: "mongodb+srv://harun:23113296460012834@cluster0.kcvr2uw.mongodb.net/tickets?retryWrites=true&w=majority&appName=Cluster0"
+              valueFrom:
+                secretKeyRef:
+                  name: cluster-secrets
+                  key: MONGO_URI_TICKETS
             - name: JWT_KEY
               valueFrom:
                 secretKeyRef:
                   name: cluster-secrets
                   key: JWT_KEY
+            - name: NATS_CLUSTER_ID
+              value: "ticketing"
+            - name: NATS_CLIENT_URL
+              value: "http://nats-srv:4222"
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           ports:
             - containerPort: 3000
           readinessProbe:
@@ -42,7 +55,6 @@ spec:
   selector:
     app: auth
   ports:
-    - name: auth
-      protocol: TCP
+    - protocol: TCP
       port: 3000
       targetPort: 3000

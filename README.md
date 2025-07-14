@@ -65,9 +65,25 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
+    <li><a href="#usage">Usage</a></li>
   </ol>
 </details>
+
+
+### Built With
+
+* [![Next.js][Next.js]][Next-url] 
+* [![Tailwindcss][Tailwindcss]][Tailwindcss-url] 
+* [![Node.js][Node.js]][Node-url]
+* [![Express.js][Express.js]][Express-url]
+* [![MongoDB][Mongodb]][Mongo-url]
+* [![NATS-Streaming-Server][NATS]][NATS-url]
+* [![Redis][Redis]][Redis-url]
+* [![Socket.io][Socket.io]][Socket-url]
+* [![Kubernetes][Kubernetes]][Kubernetes-url]
+* [![Docker][Docker]][Docker-url]
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
 
@@ -77,12 +93,15 @@
 [![Architecture Diagram][architecture-diagram]](https://app.eraser.io/workspace/1GknkYSlKLSI33fC7iia)
 
 This project is a full-stack, event-driven microservices-based platform that enables users to purchase event tickets and resell their owned tickets through an integrated auction system.
+
 Here's some more details about the project:
-- Built with a modular microservice architecture, where each core functionality (e.g., ticketing, bidding, authentication, ordering, payments) is encapsulated in its own service.
+- Built with a modular microservice architecture, where each core functionality (e.g., ticketing, bidding, authentication, etc.) is encapsulated in its own service.
 - Utilizes event-driven communication via a messaging system to enable decoupled and scalable interactions between services.
 - Provides real-time bidding capabilities for authenticated users using WebSockets, ensuring a responsive and dynamic auction experience.
 - Follows best practices in terms of reusablility, data consistency and security measures.
+
 This platform is developed as a personal project to demonstrate hands-on expertise in building and deploying distributed systems using Microservices Architecture. While it captures the essence of a real-world ticketing and resale platform, some features have been simplified or abstracted to keep the focus on architectural concepts and technical implementation.
+
 The project is deployed using Google Kubernetes Engine (GKE) in Autopilot mode, taking advantage of Google Cloud's managed infrastructure for scalability and resilience.
 
 ### Prerequisites
@@ -94,7 +113,7 @@ The project is deployed using Google Kubernetes Engine (GKE) in Autopilot mode, 
 * skaffold
   ```sh
   curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64 && \
-sudo install skaffold /usr/local/bin/
+  sudo install skaffold /usr/local/bin/
   ```
 * kubernetes
 
@@ -135,6 +154,24 @@ sudo install skaffold /usr/local/bin/
 Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
 
 _For more examples, please refer to the [Documentation](https://example.com)_
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+
+
+<!-- ACKNOWLEDGMENTS -->
+## Acknowledgments
+
+Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
+
+* [Choose an Open Source License](https://choosealicense.com)
+* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
+* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
+* [Malven's Grid Cheatsheet](https://grid.malven.co/)
+* [Img Shields](https://shields.io)
+* [GitHub Pages](https://pages.github.com)
+* [Font Awesome](https://fontawesome.com)
+* [React Icons](https://react-icons.github.io/react-icons/search)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

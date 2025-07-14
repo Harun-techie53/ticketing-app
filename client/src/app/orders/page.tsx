@@ -1,11 +1,23 @@
 "use client";
 
 import { apiGet, apiPost } from "@/helpers/axios/config";
-import { Order } from "@/types";
+import { Order, ToastType } from "@/types";
 import React, { useEffect, useState } from "react";
-import { getOrderStatusClass } from "@/helpers/utils/statusClasses"; // If you have a helper for status styling
+import { getOrderStatusClass } from "@/helpers/utils/statusClasses";
+import { OrderStatus } from "@hrrtickets/common";
+import { showGlobalToast } from "@/helpers/utils/globals";
+import OrderSkeletonCard from "@/components/skeletons/OrderSkeletonCard";
+import SortDropdown from "@/components/sort-dropdown";
+import StatusFilterDropdown from "@/components/status-filter-dropdown";
+import { utils } from "@/helpers/utils";
+
+const sortOptions = [
+  { label: "Newest", value: "-createdAt" },
+  { label: "Oldest", value: "createdAt" },
+];
 
 const Orders = () => {
+  const [ordersTotalCount, setOrdersTotalCount] = useState<number | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
   const [selectedAuctionTicket, setSelectedAuctionTicket] = useState<
     Order["ticket"] | null
@@ -15,6 +27,12 @@ const Orders = () => {
   );
   const [expiresIn, setExpiresIn] = useState<Date | null>(null);
   const [error, setError] = useState("");
+  const [isOrdersLoading, setIsOrdersLoading] = useState<boolean>(false);
+  const [selectedSortOption, setSelectedSortOption] = useState("");
+  const [selectedFilterStatus, setSelectedFilterStatus] = useState<{
+    label: string;
+    value: string;
+  } | null>(null);
 
   const handleChangeExpiresIn = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const currentDatetime = new Date();
@@ -47,6 +65,7 @@ const Orders = () => {
         },
         withCredentials: true,
       });
+      showGlobalToast("Auction confirmed!", ToastType.Success);
       closeAuctionModal();
     } catch (err) {
       console.error("Auction creation failed:", err);
@@ -55,12 +74,41 @@ const Orders = () => {
   };
 
   const fetchOrders = async () => {
+    setIsOrdersLoading(true);
     try {
-      const orders = await apiGet<Order[]>({ apiPath: "/api/orders/me" });
-      setOrders(orders);
+      const queryParams = new URLSearchParams();
+
+      queryParams.append("sort", selectedSortOption);
+
+      if (selectedFilterStatus) {
+        queryParams.append("status", selectedFilterStatus.value);
+      }
+
+      const response = await apiGet<{
+        orders: Order[];
+        totalDocumentsCount: number;
+      }>({
+        apiPath: `/api/orders/me?${queryParams.toString()}`,
+        withCredentials: true,
+      });
+      setOrders(response.orders);
+      setOrdersTotalCount(response.totalDocumentsCount);
     } catch (error) {
       console.error("Error fetching orders:", error);
+    } finally {
+      setIsOrdersLoading(false);
     }
+  };
+
+  const handleSelectFilterStatus = (status: {
+    label: string;
+    value: string;
+  }) => {
+    setSelectedFilterStatus(status);
+  };
+
+  const handleSelectSortOption = (option: string) => {
+    setSelectedSortOption(option);
   };
 
   const openAuctionModal = (ticket: Order["ticket"]) => {
@@ -81,72 +129,91 @@ const Orders = () => {
 
   useEffect(() => {
     fetchOrders();
-  }, []);
+  }, [selectedFilterStatus, selectedSortOption]);
 
   return (
     <>
-      <div className="container mx-auto px-6 py-10">
-        <h2 className="text-3xl font-bold mb-6 text-center text-primary">
-          Your Orders
-        </h2>
-
-        {orders?.length > 0 ? (
-          <div className="space-y-5">
-            {orders.map((order) => (
-              <div
-                key={order.id}
-                className="card bg-base-100 shadow-lg border border-base-300"
+      <div className="container mx-auto px-6 py-10 space-y-5">
+        {ordersTotalCount! > 0 && (
+          <div className="flex items-center space-x-2 mb-5">
+            <SortDropdown
+              onChange={handleSelectSortOption}
+              options={sortOptions}
+            />
+            <div className="flex items-center">
+              <StatusFilterDropdown
+                statuses={Object.values(OrderStatus).map((status) => ({
+                  label: utils.capitalizeFirst(status),
+                  value: status,
+                }))}
+                onSelect={handleSelectFilterStatus}
+              />
+              <button
+                className="btn btn-link text-error"
+                onClick={() => setSelectedFilterStatus(null)}
               >
-                <div className="card-body space-y-3">
-                  <h3 className="text-lg font-semibold">
-                    Order ID:{" "}
-                    <span className="text-lg text-gray-500 break-all">
-                      {order.id}
-                    </span>
-                  </h3>
-                  <p className="text-sm text-gray-600">
-                    📅 Placed At:{" "}
-                    <span className="font-medium">
-                      {new Date(order.expiresAt).toLocaleString()}
-                    </span>
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Status:{" "}
-                    <span
-                      className={`badge badge-sm ${getOrderStatusClass?.(
-                        order.status
-                      )} capitalize`}
-                    >
-                      {order.status}
-                    </span>
-                  </p>
-                  {order.resaledAt && (
-                    <p>
-                      📅 Resaled At:{" "}
-                      {new Date(order.resaledAt).toLocaleString()}
-                    </p>
-                  )}
+                Clear
+              </button>
+            </div>
+          </div>
+        )}
+        {isOrdersLoading ? (
+          [1, 2, 3, 4, 5].map((item) => <OrderSkeletonCard key={item} />)
+        ) : orders?.length > 0 ? (
+          orders.map((order) => (
+            <div
+              key={order.id}
+              className="card bg-base-100 shadow-lg border border-base-300"
+            >
+              <div className="card-body space-y-3">
+                <h3 className="text-lg font-semibold">
+                  Order ID:{" "}
+                  <span className="text-lg text-gray-500 break-all">
+                    {order.id}
+                  </span>
+                </h3>
+                <p className="text-sm text-gray-600">
+                  📅 Placed At:{" "}
+                  <span className="font-medium">
+                    {new Date(order.expiresAt).toLocaleString()}
+                  </span>
+                </p>
+                <p className="text-sm text-gray-600">
+                  Status:{" "}
+                  <span
+                    className={`badge badge-sm ${getOrderStatusClass?.(
+                      order.status
+                    )} capitalize`}
+                  >
+                    {order.status}
+                  </span>
+                </p>
 
-                  {order.ticket && (
-                    <div className="bg-gray-50 rounded-md p-3 border border-dashed border-gray-300">
-                      <h4 className="text-md font-semibold mb-2">🎫 Ticket</h4>
-                      <p>
-                        <span className="text-gray-500">Title:</span>{" "}
-                        <span className="font-medium">
-                          {order.ticket.title}
-                        </span>
-                      </p>
-                      <p>
-                        <span className="text-gray-500">Description:</span>{" "}
-                        {order.ticket.description}
-                      </p>
-                      <p>
-                        <span className="text-gray-500">Price:</span>{" "}
-                        <span className="text-success font-semibold">
-                          ${order.ticket.price}
-                        </span>
-                      </p>
-                      {!order.resaled && (
+                {order.resaledAt && (
+                  <p>
+                    📅 Resaled At: {new Date(order.resaledAt).toLocaleString()}
+                  </p>
+                )}
+
+                {order.ticket && (
+                  <div className="bg-gray-50 rounded-md p-3 border border-dashed border-gray-300">
+                    <h4 className="text-md font-semibold mb-2">🎫 Ticket</h4>
+                    <p>
+                      <span className="text-gray-500">Title:</span>{" "}
+                      <span className="font-medium">{order.ticket.title}</span>
+                    </p>
+                    <p>
+                      <span className="text-gray-500">Description:</span>{" "}
+                      {order.ticket.description}
+                    </p>
+                    <p>
+                      <span className="text-gray-500">Price:</span>{" "}
+                      <span className="text-success font-semibold">
+                        ${order.ticket.price}
+                      </span>
+                    </p>
+                    {!order.resaled &&
+                      order.status === OrderStatus.Complete && (
                         <button
                           className="btn btn-neutral btn-sm mt-3"
                           onClick={() => openAuctionModal(order.ticket)}
@@ -154,17 +221,16 @@ const Orders = () => {
                           Make Auction
                         </button>
                       )}
-                    </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
+            </div>
+          ))
         ) : (
-          <div className="text-center mt-10">
-            <p className="text-lg text-gray-600">
+          <div className="text-center py-10">
+            <h4 className="text-error card-title flex justify-center">
               You haven’t placed any orders yet.
-            </p>
+            </h4>
           </div>
         )}
       </div>

@@ -7,6 +7,7 @@ interface AuctionAttrs {
   basePrice: number;
   expiresAt: Date;
   status: AuctionStatusType;
+  raisedBy: UserDoc;
 }
 
 export enum AuctionStatusType {
@@ -27,6 +28,7 @@ interface AuctionDoc extends mongoose.Document {
   status: AuctionStatusType;
   highestBidder: BidDoc;
   bids: BidDoc[];
+  raisedBy: UserDoc;
 }
 
 interface AuctionModel extends mongoose.Model<AuctionDoc> {
@@ -67,14 +69,15 @@ const auctionSchema = new mongoose.Schema(
     },
     highestBidder: bidSchema,
     bids: [bidSchema],
-    createdAt: {
-      type: Date,
-      default: Date.now(),
+    raisedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {
+    timestamps: true,
     toJSON: {
-      transform: (doc, ret) => {
+      transform: (doc, ret: any) => {
         ret.id = ret._id;
         delete ret._id;
       },

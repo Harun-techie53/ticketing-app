@@ -1,6 +1,6 @@
 "use client";
-import { useToast } from "@/contexts/ToastContext";
 import { apiPost } from "@/helpers/axios/config";
+import { showGlobalToast } from "@/helpers/utils/globals";
 import { Ticket, ToastType } from "@/types";
 import React, { useState } from "react";
 
@@ -10,7 +10,6 @@ interface ITicketCreatedResponse {
 }
 
 const AdminTickets = () => {
-  const { setShowToast, setToastMessage, setToastType } = useToast();
   // Track form values
   const [formData, setFormData] = useState({
     title: "",
@@ -47,9 +46,7 @@ const AdminTickets = () => {
         withCredentials: true,
       });
 
-      setShowToast(true);
-      setToastMessage("Ticket created successfully!");
-      setToastType(ToastType.Success);
+      showGlobalToast("Ticket created successfully!", ToastType.Success);
       setFormData({
         title: "",
         description: "",
@@ -59,9 +56,7 @@ const AdminTickets = () => {
       console.log("response ", data);
     } catch (error) {
       console.error("Error:", error);
-      setShowToast(true);
-      setToastMessage("There was an error creating the ticket.");
-      setToastType(ToastType.Error);
+      showGlobalToast("Error occurred creating ticket", ToastType.Error);
     }
   };
 

@@ -7,16 +7,15 @@ import { RandomAvatar } from "../random-avatar";
 import { apiPost } from "@/helpers/axios/config";
 import { useToast } from "@/contexts/ToastContext";
 import { ToastType } from "@/types";
+import { showGlobalToast } from "@/helpers/utils/globals";
 
 const Header = () => {
   const { isAuthenticated } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
-  const { setShowToast, setToastMessage, setToastType } = useToast();
 
   const navItems = [
     { label: "Home", href: "/", hidden: false },
-    { label: "Tickets", href: "/tickets", hidden: false },
     { label: "Auctions", href: "/tickets/auctions", hidden: !isAuthenticated },
     { label: "Orders", href: "/orders", hidden: !isAuthenticated },
   ];
@@ -28,9 +27,7 @@ const Header = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       setTimeout(() => {
-        setShowToast(true);
-        setToastMessage("Logged out successfully!");
-        setToastType(ToastType.Success);
+        showGlobalToast("Logged out successfully!", ToastType.Success);
         router.push("/login");
       }, 1000);
     } catch (error) {
@@ -39,7 +36,7 @@ const Header = () => {
   };
 
   return (
-    <div className="navbar bg-base-100 shadow-md px-10">
+    <div className="navbar bg-base-100 shadow-md px-10 fixed top-0 left-0 right-0 z-50">
       <div className="flex-1">
         <Link href="/" className="text-xl font-bold text-primary">
           TicketingApp

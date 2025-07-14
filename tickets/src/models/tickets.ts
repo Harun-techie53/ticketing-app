@@ -25,6 +25,7 @@ export interface TicketDoc extends mongoose.Document {
   };
   maxResalePrice: number;
   resaledPrice: number | null;
+  likedBy: string[];
 }
 
 interface TicketModel extends mongoose.Model<TicketDoc> {
@@ -70,6 +71,12 @@ const ticketSchema = new mongoose.Schema(
     resaledPrice: {
       type: Number,
     },
+    likedBy: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     createdAt: {
       type: Date,
       default: Date.now(),
@@ -77,7 +84,7 @@ const ticketSchema = new mongoose.Schema(
   },
   {
     toJSON: {
-      transform(doc, ret) {
+      transform(doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
       },

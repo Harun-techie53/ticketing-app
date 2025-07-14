@@ -9,6 +9,7 @@ interface OrderAttrs {
   status: OrderStatus;
   expiresAt?: Date;
   ticket: TicketDoc;
+  createdAt?: Date;
 }
 
 interface OrderModel extends mongoose.Model<OrderDoc> {
@@ -59,7 +60,7 @@ const orderSchema = new mongoose.Schema(
   },
   {
     toJSON: {
-      transform(doc, ret) {
+      transform(doc, ret: any) {
         ret.id = ret._id;
         delete ret._id;
       },

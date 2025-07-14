@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: tickets
-          image: harun1809030/ticketing-tickets:latest
+          image: harun1809030/ticketing-tickets
           ports:
             - containerPort: 3000
           env:
@@ -51,6 +51,13 @@ spec:
             periodSeconds: 10
             failureThreshold: 3
             timeoutSeconds: 2
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
 ---
 apiVersion: v1
 kind: Service

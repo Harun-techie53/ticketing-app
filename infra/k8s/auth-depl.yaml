@@ -12,11 +12,9 @@ spec:
       labels:
         app: auth
     spec:
-      imagePullSecrets:
-        - name: regcred
       containers:
         - name: auth
-          image: harun1809030/ticketing-auth:latest
+          image: harun1809030/ticketing-auth
           env:
             - name: MONGO_URI
               valueFrom:

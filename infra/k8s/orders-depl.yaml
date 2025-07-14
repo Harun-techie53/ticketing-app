@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: orders
-          image: harun1809030/ticketing-orders:latest
+          image: harun1809030/ticketing-orders
           env:
             - name: JWT_KEY
               valueFrom:

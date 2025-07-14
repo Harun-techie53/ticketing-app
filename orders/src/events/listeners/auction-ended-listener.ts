@@ -41,6 +41,7 @@ export class AuctionEndedListener extends Listener<AuctionEndedEvent> {
       user,
       status: OrderStatus.AwaitingPayment,
       ticket: order.ticket,
+      createdAt: new Date(),
     });
 
     await newOrder.save();

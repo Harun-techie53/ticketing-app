@@ -42,6 +42,7 @@ export interface Ticket {
   };
   maxResalePrice: number;
   resaledPrice: number | null;
+  likedBy: string[];
 }
 
 export interface Auction {
@@ -52,6 +53,7 @@ export interface Auction {
   status: AuctionStatusType;
   highestBidder: BidDoc;
   bids: BidDoc[];
+  raisedBy: Partial<User>;
 }
 
 export interface User {

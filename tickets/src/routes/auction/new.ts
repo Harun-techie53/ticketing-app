@@ -14,7 +14,7 @@ import { User } from "../../models/user";
 
 const router = express.Router();
 
-const EXPIRATION_WINDOW_SECONDS = 5 * 60;
+const EXPIRATION_WINDOW_SECONDS = 1 * 60;
 
 router.post(
   "/api/tickets/auctions",
@@ -37,8 +37,6 @@ router.post(
     if (!ticket.order) {
       return next(new BadRequestError("Ticket is not ordered yet", 400));
     }
-
-    console.log("ticket order ", ticket.order);
 
     if (req.currentUser?.id !== ticket.order.user.id) {
       return next(new BadRequestError("Ticket not belong to the user", 401));
@@ -66,6 +64,7 @@ router.post(
       expiresAt,
       status: AuctionStatusType.Active,
       basePrice,
+      raisedBy: user!,
     });
 
     await auction.save();

@@ -6,12 +6,12 @@ import { useToast } from "@/contexts/ToastContext";
 import { apiGet, apiPut } from "@/helpers/axios/config";
 import socket from "@/helpers/socket";
 import { utils } from "@/helpers/utils";
+import { showGlobalToast } from "@/helpers/utils/globals";
 import { Auction, AuctionStatusType, BidDoc, ToastType, User } from "@/types";
 import React, { useEffect, useState, use } from "react";
 
 const AuctionPage = ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = use(params);
-  const { setShowToast, setToastMessage, setToastType } = useToast();
   const [auction, setAuction] = useState<Auction | null>(null);
   const [auctionPrice, setAuctionPrice] = useState("");
   const [error, setError] = useState("");
@@ -24,6 +24,7 @@ const AuctionPage = ({ params }: { params: Promise<{ id: string }> }) => {
     try {
       const auction = await apiGet<Auction>({
         apiPath: `/api/tickets/auctions/${id}`,
+        withCredentials: true,
       });
 
       setAuctionBids(auction.bids);
@@ -56,9 +57,7 @@ const AuctionPage = ({ params }: { params: Promise<{ id: string }> }) => {
       });
 
       setAuctionPrice("");
-      setShowToast(true);
-      setToastMessage("Successfully placed the bid");
-      setToastType(ToastType.Success);
+      showGlobalToast("Successfully placed the bid", ToastType.Info);
     } catch (error) {
       console.log("error", error);
     }
@@ -104,8 +103,7 @@ const AuctionPage = ({ params }: { params: Promise<{ id: string }> }) => {
             <span className="flex items-end gap-1">
               <p className="text-sm text-gray-600">Created by</p>{" "}
               <p className="font-semibold">
-                {auction.ticket.order.user.firstName}{" "}
-                {auction.ticket.order.user.lastName}
+                {auction.raisedBy?.firstName} {auction.raisedBy?.lastName}
               </p>
             </span>
             <span className="flex items-end gap-1">

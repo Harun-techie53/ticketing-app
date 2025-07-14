@@ -11,7 +11,7 @@ export const initSocket = (app: Express) => {
 
     io = new SocketIOServer(httpServer, {
       cors: {
-        origin: process.env.CLIENT_URL,
+        origin: "http://client-srv:3000",
         methods: ["GET", "POST"],
         credentials: true,
       },

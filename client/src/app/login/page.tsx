@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/helpers/axios/config";
 import { ToastType, User } from "@/types";
-import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/contexts/authContext";
+import { showGlobalToast } from "@/helpers/utils/globals";
 
 export interface ISigninResponse {
   token: string;
@@ -14,8 +14,7 @@ export interface ISigninResponse {
 
 const Login = () => {
   const router = useRouter();
-  const { setShowToast, setToastMessage, setToastType } = useToast();
-  const {setIsAuthenticated, setToken, setCurrentUser} = useAuth();
+  const { setIsAuthenticated, setToken, setCurrentUser } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
@@ -52,18 +51,14 @@ const Login = () => {
       });
 
       if (token && data) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(data));
-
-        setToastMessage("Logged in successfully!");
-        setToastType(ToastType.Success);
-        setShowToast(true);
+        localStorage?.setItem("token", token);
+        localStorage?.setItem("user", JSON.stringify(data));
+        showGlobalToast("Logged in successfully", ToastType.Success);
         setIsAuthenticated(true);
         setCurrentUser(data);
         setToken(token);
+        router.push("/");
       }
-
-      router.push("/");
     } catch (err: any) {
       setError(err.response?.data?.message || "Invalid email or password.");
     } finally {

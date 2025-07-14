@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: client
-          image: harun1809030/ticketing-client:latest
+          image: harun1809030/ticketing-client
           ports:
             - containerPort: 3000
           env:

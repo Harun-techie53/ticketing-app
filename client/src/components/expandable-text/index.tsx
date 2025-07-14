@@ -15,7 +15,7 @@ export const ExpandableText = ({
 }: ExpandableTextProps) => {
   const [expanded, setExpanded] = useState(initialExpanded);
 
-  const shouldShowToggle = text.length > 200;
+  const shouldShowToggle = text?.length > 200;
 
   return (
     <div className={`text-sm text-gray-500 ${className}`}>

@@ -64,4 +64,62 @@ router.put(
   }
 );
 
+router.put(
+  "/api/tickets/:id/like",
+  verifyToken,
+  async (req: Request, res: Response, next: NextFunction) => {
+    const ticket = await Ticket.findById(req.params.id);
+
+    if (!ticket) {
+      return next(new BadRequestError("Ticket not found", 404));
+    }
+
+    if (ticket.likedBy.includes(req.currentUser?.id!)) {
+      return next(
+        new BadRequestError("Ticket is already liked by the user", 400)
+      );
+    }
+
+    ticket.likedBy.push(req.currentUser?.id!);
+
+    await ticket.save();
+
+    res.status(200).json({
+      data: ticket,
+      status: "success",
+    });
+  }
+);
+
+router.put(
+  "/api/tickets/:id/dislike",
+  verifyToken,
+  async (req: Request, res: Response, next: NextFunction) => {
+    let ticket = await Ticket.findById(req.params.id);
+
+    if (!ticket) {
+      return next(new BadRequestError("Ticket not found", 404));
+    }
+
+    if (!ticket.likedBy.includes(req.currentUser?.id!)) {
+      return next(new BadRequestError("Ticket is not liked yet", 400));
+    }
+
+    const likedByUsers = ticket.likedBy.filter(
+      (userId) => userId.toString() !== req.currentUser?.id
+    );
+
+    ticket.set({
+      likedBy: likedByUsers,
+    });
+
+    await ticket.save();
+
+    res.status(200).json({
+      data: ticket,
+      status: "success",
+    });
+  }
+);
+
 export { router as updateRouter };

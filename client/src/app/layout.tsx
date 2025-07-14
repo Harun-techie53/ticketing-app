@@ -37,7 +37,7 @@ export default function RootLayout({
           <SocketWrapper />
           <AuthProvider>
             <Header />
-            {children}
+            <div className="mt-18">{children}</div>
           </AuthProvider>
         </ToastProvider>
       </body>

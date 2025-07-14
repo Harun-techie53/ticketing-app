@@ -1,7 +1,14 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { ToastType } from "@/types";
+import { registerToastHandler } from "@/helpers/utils/globals";
 
 type ToastContextType = {
   showToast: boolean;
@@ -18,6 +25,14 @@ export const ToastProvider = ({ children }: { children: ReactNode }) => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState<ToastType>(ToastType.Info);
+
+  useEffect(() => {
+    registerToastHandler((msg, type) => {
+      setShowToast(true);
+      setToastMessage(msg);
+      setToastType(type || ToastType.Info);
+    });
+  }, []);
 
   return (
     <ToastContext.Provider

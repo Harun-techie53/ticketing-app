@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: payments
-          image: harun1809030/ticketing-payments:latest
+          image: harun1809030/ticketing-payments
           env:
             - name: JWT_KEY
               valueFrom:

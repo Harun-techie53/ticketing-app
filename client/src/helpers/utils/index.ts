@@ -2,6 +2,11 @@ class Utils {
   stringTruncate = (str: string, n: number): string => {
     return str.length > n ? str.substring(0, n - 1) + " ...." : str;
   };
+  capitalizeFirst(str: string) {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
   isDefined = (object: { [key: string]: any }, property: any = null) => {
     if (property === null) {
       return typeof object !== "undefined";

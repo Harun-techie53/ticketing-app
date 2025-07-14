@@ -13,18 +13,16 @@ import { apiGet, apiPost } from "@/helpers/axios/config";
 import { Order, Ticket, ToastType } from "@/types";
 import ExpirationCountdown from "@/components/expiration-countdown";
 import { getOrderStatusClass } from "@/helpers/utils/statusClasses";
-import { useToast } from "@/contexts/ToastContext";
 import { useRouter } from "next/navigation";
 import { OrderStatus } from "@hrrtickets/common";
+import { showGlobalToast } from "@/helpers/utils/globals";
 
 // Replace this with your actual Stripe **public key**
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY!);
 
 const CheckoutForm = ({ orderId }: { orderId: Order["id"] }) => {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
-  const { setToastType, setShowToast, setToastMessage } = useToast();
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -41,9 +39,7 @@ const CheckoutForm = ({ orderId }: { orderId: Order["id"] }) => {
 
     if (error) {
       console.error("Payment Error", error.message);
-      setShowToast(true);
-      setToastMessage(error.message!);
-      setToastType(ToastType.Error);
+      showGlobalToast(error.message ?? "", ToastType.Error);
     } else {
       console.log("Payment Method", paymentMethod);
       try {
@@ -61,9 +57,7 @@ const CheckoutForm = ({ orderId }: { orderId: Order["id"] }) => {
         });
 
         if (orderPayment.status === "success") {
-          setShowToast(true);
-          setToastMessage("Payment successful!");
-          setToastType(ToastType.Success);
+          showGlobalToast("Payment successfully made!");
           router.push("/");
         }
       } catch (error) {
@@ -93,6 +87,26 @@ const Payment = () => {
   const router = useRouter();
   const { id: orderId } = useParams();
   const [order, setOrder] = useState<Order | null>(null);
+  const [stripe, setStripe] = useState(null);
+
+  const loadStripePromise = async () => {
+    try {
+      const res = await fetch("/api/load-stripe", {
+        method: "GET",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.loaded) {
+        throw new Error("Failed to load stripe");
+      }
+      const stripe = loadStripe(data.secretKey) as any;
+
+      setStripe(stripe);
+    } catch (error) {
+      throw new Error("Failed to load stripe");
+    }
+  };
 
   const fetchOrder = async () => {
     try {
@@ -117,7 +131,13 @@ const Payment = () => {
         router.push("/");
       }
     }
-  }, [orderId, order]);
+  }, [orderId]);
+
+  useEffect(() => {
+    if (!stripe) {
+      loadStripePromise();
+    }
+  }, [stripe]);
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-base-200 p-4">
@@ -157,7 +177,7 @@ const Payment = () => {
           )}
 
           {/* Stripe Payment Form */}
-          <Elements stripe={stripePromise}>
+          <Elements stripe={stripe}>
             <CheckoutForm orderId={order?.id!} />
           </Elements>
         </div>

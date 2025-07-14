@@ -1,4 +1,5 @@
 import {
+  APIFeatures,
   BadRequestError,
   restrictRoute,
   UserRoles,
@@ -14,11 +15,25 @@ router.get(
   "/api/orders/me",
   verifyToken,
   async (req: Request, res: Response, next: NextFunction) => {
-    const orders = await Order.find({ user: req.currentUser?.id })
-      .populate("ticket")
-      .populate("user");
+    const featureQuery = new APIFeatures(
+      Order.find({ user: req.currentUser?.id })
+        .populate("ticket")
+        .populate("user"),
+      req.query
+    )
+      .filter()
+      .sort()
+      .paginate();
 
-    res.status(200).send({ data: orders });
+    const orders = await featureQuery.getQuery();
+    const totalDocumentsCount = await featureQuery.getTotalCount();
+
+    res.status(200).send({
+      data: {
+        orders,
+        totalDocumentsCount,
+      },
+    });
   }
 );
 

@@ -3,16 +3,15 @@
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiPost } from "@/helpers/axios/config";
-import { useToast } from "@/contexts/ToastContext";
 import { useAuth } from "@/contexts/authContext";
 import { ISigninResponse } from "../login/page";
 import { ToastType } from "@/types";
+import { showGlobalToast } from "@/helpers/utils/globals";
 
 type ISignUpResponse = ISigninResponse;
 
 const Signup = () => {
   const router = useRouter();
-  const { setShowToast, setToastMessage, setToastType } = useToast();
   const { setIsAuthenticated, setToken, setCurrentUser } = useAuth();
 
   const [form, setForm] = useState({
@@ -63,9 +62,7 @@ const Signup = () => {
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(data));
 
-        setToastMessage("Created account successfully!");
-        setToastType(ToastType.Success);
-        setShowToast(true);
+        showGlobalToast("Created account successfully!", ToastType.Success);
         setIsAuthenticated(true);
         setCurrentUser(data);
         setToken(token);

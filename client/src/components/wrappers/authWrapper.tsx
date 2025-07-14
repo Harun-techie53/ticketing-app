@@ -4,27 +4,32 @@ import jwt from "jsonwebtoken";
 import { CustomJwtPayload } from "@hrrtickets/common";
 import { useToast } from "@/contexts/ToastContext";
 import { ToastType } from "@/types";
+import { showGlobalToast } from "@/helpers/utils/globals";
 
 const AuthWrapper = () => {
   const { token, setIsAuthenticated, setCurrentUser, setToken } = useAuth();
-  const { setShowToast, setToastMessage, setToastType } = useToast();
 
   const decodeToken = async (token: string) => {
     try {
-      const decoded = jwt.verify(
-        token,
-        process.env.NEXT_PUBLIC_JWT_SECRET!
-      ) as CustomJwtPayload;
+      const res = await fetch("/api/client-auth/verify", {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const { id, role, exp: issuedAt } = decoded;
-      const exp = (issuedAt + 3600) * 1000;
+      const data = await res.json();
 
-      const now = Date.now();
+      if (!res.ok || !data.valid) {
+        throw new Error("Invalid or expired token");
+      }
+
+      const { user } = data;
+      const { id, role, exp } = user;
+      const now = Math.floor(Date.now() / 1000);
 
       if (now >= exp) {
-        setShowToast(true);
-        setToastMessage("Login session expired");
-        setToastType(ToastType.Error);
+        showGlobalToast("Login session expired", ToastType.Error);
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         setIsAuthenticated(false);
@@ -32,13 +37,9 @@ const AuthWrapper = () => {
         setToken("");
         return;
       }
-
-      const user = { id, role, exp };
     } catch (error) {
       console.log("❌ Error decoding token: ", error);
-      setShowToast(true);
-      setToastMessage("Login session expired");
-      setToastType(ToastType.Error);
+      showGlobalToast("Login session expired", ToastType.Error);
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       setIsAuthenticated(false);
@@ -48,7 +49,7 @@ const AuthWrapper = () => {
   };
 
   useEffect(() => {
-    if (token !== "") {
+    if (token) {
       decodeToken(token);
     }
   }, [token]);

@@ -1,0 +1,2 @@
+./infra/k8s/secret.yaml
+ingress-srv-gke.yaml
